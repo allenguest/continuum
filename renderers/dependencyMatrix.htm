@@ -1,0 +1,82 @@
+<style>
+    .dm-pills  { padding-top: 2px;}
+	.dm-header { color: white; padding: 2px 2px; width: 100%}
+	.dm-header a { color: #cfcfcf}
+	.dm-header a:hover { color: white; text-decoration:none !important;}
+	
+	.dm-component-header-left { position:relative;float:left;clear:both}
+	.dm-component-header-right { position:relative;float:right}
+	
+	.dm-component-info { font-size: 18pt; font-weight: bold; padding:5px 5px; width: 600px;}
+	.dm-columnComponent {width:30px;font-size:13px;word-wrap: break-word; letter-spacing: 5px; text-align:center; border-left: 1px solid #E9E9E9; }
+	.dm-columnHeader { background-color: #595959;padding: 2px 2px;}
+	.dm-columnWordWrap { word-wrap: break-word;}
+	.dm-columnInfo { color: black; font-size: 9pt; font-weight: normal; padding: 2px 2px; border: 1px solid #E9E9E9;}
+	.dm-columnInfo-depends { color: black; font-size: 9pt; font-weight: normal; padding: 2px 2px; border: 1px solid #E9E9E9;text-align:center;}
+	.dm-column-sortable:hover { cursor:pointer; background-color: #797979;}
+	
+	.dm-rowInfo:hover { background-color: #E9E9E9; cursor: pointer;}
+	.dm-searchMatch { background-color: #30FF30 !important; }
+	.dm-body   { color: black; padding: 2px 2px;}
+	
+	.dm-AIS			{ background-color: #399397;transition: color 0.2s, background 0.3s}
+	.dm-AIS:hover 	{ background-color: #59B3B7; cursor:pointer;}
+	.dm-AccSync		{ background-color: #404040;transition: color 0.2s, background 0.3s}
+	.dm-AccSync:hover	{ background-color: #606060; cursor:pointer;}
+	.dm-BRM    		{ background-color: #00B0F0;transition: color 0.2s, background 0.3s}
+	.dm-BRM:hover	{ background-color: #20D0FF; cursor:pointer;}
+	.dm-BRMSOA 		{ background-color: #00B0F0;transition: color 0.2s, background 0.3s}
+	.dm-BRMSOA:hover{ background-color: #20D0FF; cursor:pointer;}
+	.dm-CDI    		{ background-color: #44546A;transition: color 0.2s, background 0.3s}
+	.dm-CDI:hover   { background-color: #64748A; cursor:pointer;}
+	.dm-CBS    		{ background-color: #404040;transition: color 0.2s, background 0.3s}
+	.dm-CBS:hover   { background-color: #606060; cursor:pointer;}
+	.dm-CDC    		{ background-color: #404040;transition: color 0.2s, background 0.3s}
+	.dm-CDC:hover   { background-color: #606060; cursor:pointer;}
+	.dm-CPE    		{ background-color: #44546A;transition: color 0.2s, background 0.3s}
+	.dm-CPE:hover   { background-color: #64748A; cursor:pointer;}
+	.dm-CRED-SVC	{ background-color: #ED7D31;transition: color 0.2s, background 0.3s}
+	.dm-CRED-SVC:hover { background-color: #FF9D51; cursor:pointer;}
+	.dm-ESB			{ background-color: #7030A0;transition: color 0.2s, background 0.3s}
+	.dm-ESB:hover   { background-color: #9050C0; cursor:pointer;}
+	.dm-EMS   		{ background-color: #ED7D31;transition: color 0.2s, background 0.3s}
+	.dm-EMS:hover   { background-color: #FF9D51; cursor:pointer;}
+	.dm-FFM   		{ background-color: #ED7D31;transition: color 0.2s, background 0.3s}
+	.dm-FFM:hover   { background-color: #FF9D51; cursor:pointer;}
+	.dm-FFMSOA 		{ background-color: #ED7D31;transition: color 0.2s, background 0.3s}
+	.dm-FFMSOA:hover   { background-color: #FF9D51; cursor:pointer;}
+	.dm-HPSA   		{ background-color: #4472C4;transition: color 0.2s, background 0.3s}
+	.dm-HPSA:hover  { background-color: #6492E4; cursor:pointer;}
+	.dm-JMS			{ background-color: #7030A0;transition: color 0.2s, background 0.3s}
+	.dm-JMS:hover   { background-color: #9050C0; cursor:pointer;}
+	.dm-LMS			{ background-color: #C02020;transition: color 0.2s, background 0.3s}
+	.dm-LMS:hover   { background-color: #A04040; cursor:pointer;}
+	.dm-MyAcc  		{ background-color: #ED7D31;transition: color 0.2s, background 0.3s}
+	.dm-MyAcc:hover  { background-color: #FF9D51; cursor:pointer;}
+	.dm-NSA			{ background-color: #399397;transition: color 0.2s, background 0.3s}
+	.dm-NSA:hover 	{ background-color: #59B3B7; cursor:pointer;}
+	.dm-OE	   		{ background-color: #70AD47;transition: color 0.2s, background 0.3s}
+	.dm-OE:hover	{ background-color: #90CD67; cursor:pointer;}
+	.dm-OM     		{ background-color: #70AD47;transition: color 0.2s, background 0.3s}
+	.dm-OM:hover	{ background-color: #90CD67; cursor:pointer;}
+	.dm-PC   		{ background-color: #4472C4;transition: color 0.2s, background 0.3s}
+	.dm-PC:hover    { background-color: #6492E4; cursor:pointer;}
+	.dm-PIM    		{ background-color: #70AD47;transition: color 0.2s, background 0.3s}
+	.dm-PIM:hover	{ background-color: #90CD67; cursor:pointer;}
+	.dm-SecMtx		{ background-color: #ED7D31;transition: color 0.2s, background 0.3s}
+	.dm-SecMtx:hover	{ background-color: #FF9D51; cursor:pointer;}
+	.dm-TN    		{ background-color: #44546A;transition: color 0.2s, background 0.3s}
+	.dm-TN:hover    { background-color: #64748A; cursor:pointer;}
+	.dm-TSS			{ background-color: #C02020;transition: color 0.2s, background 0.3s}
+	.dm-TSS:hover   { background-color: #A04040; cursor:pointer;}
+	.dm-TVSC		{ background-color: #C02020;transition: color 0.2s, background 0.3s}
+	.dm-TVSC:hover  { background-color: #A04040; cursor:pointer;}
+	.dm-UDGF   		{ background-color: #ED7D31;transition: color 0.2s, background 0.3s}
+	.dm-UDGF:hover  { background-color: #FF9D51; cursor:pointer;}
+	.dm-component-description { display:block; font-size: 12pt; padding 2px 5px}
+	.dm-component-description-small { display:block; font-size: 10pt; padding 2px 5px}
+	
+	
+</style>
+<div class="dm-header" />
+<div class="dm-body" />

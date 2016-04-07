@@ -1,0 +1,75 @@
+<style>
+	.canvas { 
+		z-index: 30;
+		background-color: #FFFFFF;
+		font: 10px sans-serif;
+		display:inline-block;
+	}
+	
+	.info {
+		z-index: 30;
+		background-color: #FFFFFF;
+		font: 10pt sans-serif;
+		position: fixed;
+		display:none;
+		float:right;
+		padding: 5px 5px;
+		border: 1px solid #888888;
+		box-shadow: 5px 5px 2px #888888;
+	}
+	.infoHeader {
+		font: 14pt sans-serif;
+		padding: 2px 2px;
+	}
+	.infoHeader-source, 
+	.infoHeader-target 
+	{ 
+		padding: 2px 2px;
+		color: #FFFFFF;
+	}
+
+	th.dd-column-sortable:hover { cursor:pointer; background-color: #EFEFEF;}
+	.dd-columnInfo { color: black; font-size: 9pt; font-weight: normal; padding: 2px 2px; border: 1px solid #E9E9E9;}
+	.dd-panel-scrollable { max-height: 200px; overflow-y: scroll;}
+	.dd-rowInfo:hover { cursor: pointer; background-color: #EFEFEF;}
+	.dd-searchMatch { background-color: #30FF30 !important; }
+
+	#tooltip {
+		color: white;
+        opacity: .9;
+        background: #333;
+        padding: 5px;
+        border: 1px solid lightgrey;
+        border-radius: 5px;
+        position: absolute;
+        z-index: 40;
+        visibility: hidden;
+        white-space: nowrap;
+        pointer-events: none;
+	}
+
+	#circle circle {
+		fill: none;
+		pointer-events: all;
+	}
+	#circle:hover path.fade {
+		display: none;
+	}
+	.group path {
+		fill-opacity: .5;
+	}
+	path.group {
+		fill-opacity: .8;
+     }
+    path.chord {
+		fill-opacity: .8;
+        stroke: #000;
+        stroke-width: .25px;
+     }
+	 
+
+
+</style>
+<div id="tooltip"></div>
+<div id="dependencyDiagramCanvas" class="canvas" />
+<div id="dependencyDiagramInfo" class="info"></div>
