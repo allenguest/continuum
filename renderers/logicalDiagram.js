@@ -1,165 +1,148 @@
 var LogicalDiagram = {
 	_data : null,
 	_container : null,
-	_colorData : [],
-	_graph : ["nodes","links","groups"],
+	_graph : ["options","links","groups"],
 	_searchText : "",
+	_path : null,
+	_circle : null,
+	_text : null,
 	init : function() {
-		LogicalDiagram._colorData.push({acronym: "AIS", color: "#399397"});
-		LogicalDiagram._colorData.push({acronym: "AccSync", color: "#404040"});
-		LogicalDiagram._colorData.push({acronym: "BRM", color: "#00B0F0"});
-		LogicalDiagram._colorData.push({acronym: "BRMSOA", color: "#00B0F0"});
-		LogicalDiagram._colorData.push({acronym: "CDI", color: "#44546A"});
-		LogicalDiagram._colorData.push({acronym: "CBS", color: "#404040"});
-		LogicalDiagram._colorData.push({acronym: "CDC", color: "#606060"});
-		LogicalDiagram._colorData.push({acronym: "CPE", color: "#44546A"});
-		LogicalDiagram._colorData.push({acronym: "CRED-SVC", color: "#ED7D31"});
-		LogicalDiagram._colorData.push({acronym: "ESB", color: "#7030A0"});
-		LogicalDiagram._colorData.push({acronym: "EMS", color: "#ED7D31"});
-		LogicalDiagram._colorData.push({acronym: "FFM", color: "#ED7D31"});
-		LogicalDiagram._colorData.push({acronym: "FFMSOA", color: "#ED7D31"});
-		LogicalDiagram._colorData.push({acronym: "HPSA", color: "#4472C4"});
-		LogicalDiagram._colorData.push({acronym: "JMS", color: "#7030A0"});
-		LogicalDiagram._colorData.push({acronym: "LMS", color: "#C02020"});
-		LogicalDiagram._colorData.push({acronym: "MyAcc", color: "#ED7D31"});
-		LogicalDiagram._colorData.push({acronym: "NSA", color: "#399397"});
-		LogicalDiagram._colorData.push({acronym: "OE", color: "#70AD47"});
-		LogicalDiagram._colorData.push({acronym: "OM", color: "#70AD47"});
-		LogicalDiagram._colorData.push({acronym: "PC", color: "#4472C4"});
-		LogicalDiagram._colorData.push({acronym: "PIM", color: "#70AD47"});
-		LogicalDiagram._colorData.push({acronym: "SecMtx", color: "#ED7D31"});
-		LogicalDiagram._colorData.push({acronym: "TN", color: "#44546A"});
-		LogicalDiagram._colorData.push({acronym: "TSS", color: "#C02020"});
-		LogicalDiagram._colorData.push({acronym: "TVSC", color: "#A04040"});
-		LogicalDiagram._colorData.push({acronym: "UDGF", color: "#ED7D31"});
-		LogicalDiagram._graph.nodes = new Array();
 		LogicalDiagram._graph.links = new Array();
 		LogicalDiagram._graph.groups = new Array();
+		LogicalDiagram._graph.options = new Array();
+		
+		var servicesList = [];
+		for (var i=0;i<LogicalDiagram._data.components.length;i++) {
+			var component = LogicalDiagram._data.components[i];
+			if (component.services) {
+				for (var j=0;j<component.services.length;j++) {
+					servicesList.push(component.services[j]);
+				}
+			}
+		}
+		
 		for (var i=0;i<LogicalDiagram._data.components.length;i++)
 		{
 			var component = LogicalDiagram._data.components[i];
-			LogicalDiagram._graph.nodes.push({name : component.acronym, width: 80, height: 40});
 			if (component.dependsOn) {
 				for (var j=0;j<component.dependsOn.length;j++) {
+					component.nodeSize = component.dependsOn.length * 20;
 					LogicalDiagram._data.components.find(function(dependComponent) {
 						if (component.dependsOn[j].endpointId.startsWith(dependComponent.acronym)) {
-							var t = LogicalDiagram._data.components.indexOf(dependComponent	);
-							LogicalDiagram._graph.links.pushIfUnique({source:i, target:t}, function(e) {
-								return LogicalDiagram._data.components[e.source].acronym === component.acronym && 
-									LogicalDiagram._data.components[e.target].acronym === dependComponent.acronym;
+							var serviceDefinition = servicesList.find(function(s) {
+								return s.id === component.dependsOn[j].endpointId;
+							});
+							var t = LogicalDiagram._data.components.indexOf(dependComponent);
+							LogicalDiagram._graph.links.pushIfUnique({source:i, target:t, service:serviceDefinition}, function(e) {
+									return LogicalDiagram._data.components[e.source].acronym === component.acronym && 
+										LogicalDiagram._data.components[e.target].acronym === dependComponent.acronym;
 							});
 						}
 					});
 				}
-			}
+			} else component.nodeSize = 10;
 		}
-
+		
+		LogicalDiagram._graph.options.stackHeight = 12;
+		LogicalDiagram._graph.options.radius = 6;
+		LogicalDiagram._graph.options.fontSize = 12;
+		LogicalDiagram._graph.options.labelFontSize = 8;
+		LogicalDiagram._graph.options.nodeLabel = "acronym";
+		LogicalDiagram._graph.options.nodeDescription = "name";
+		LogicalDiagram._graph.options.color = "color";
+		LogicalDiagram._graph.options.markerWidth = 6;
+		LogicalDiagram._graph.options.markerHeight = 6;
+		LogicalDiagram._graph.options.gap = 1.5;
+		LogicalDiagram._graph.options.nodeSize = "nodeSize";
+		LogicalDiagram._graph.options.linkDistance = 240;
+		LogicalDiagram._graph.options.charge = -720;
+		LogicalDiagram._graph.options.styleColumn = "endpointType";
+		LogicalDiagram._graph.options.styles = "endpointType";
+		LogicalDiagram._graph.options.linkName = "description";
 	},
 	refresh : function() {
 		$("#logicalDiagramCanvas").empty();
-		var width = $(window).height() - 60,
-			height = width;
-			
-		var c3 = cola.d3adaptor().
-			linkDistance(150).
-			avoidOverlaps(true).
-			handleDisconnected(false).
-			size([width, height]);
-
-		var svg = d3.select("#logicalDiagramCanvas").append("svg")
-			.attr("width", width)
-			.attr("height", height)
-			
-		c3.nodes(LogicalDiagram._graph.nodes)
-			.links(LogicalDiagram._graph.links)
-			.groups(LogicalDiagram._graph.groups)
-			.start();
-			
-		svg.append("defs").append("marker")
-			.attr("id", "arrowhead")
-			.attr("refX", 6 + 3) /*must be smarter way to calculate shift*/
-			.attr("refY", 2)
-			.attr("markerWidth", 6)
-			.attr("markerHeight", 4)
-			.attr("orient", "auto")
-			.append("path")
-			.attr("d", "M 0,0 V 4 L6,2 Z"); //this is actual shape for arrowhead
+		var graph = LogicalDiagram._graph;
+		var options = graph.options;
 		
-		var group = svg.selectAll('.group')
-			.data(LogicalDiagram._graph.groups)
-			.enter().append("rect")
-			.attr("rx", 8)
-			.attr("ry", 8)
-			.attr("class", "group")
-			.style("fill", function(d, i) { return color(i); })
-			.call(c3.drag);
+		options.width = $(window).height() - 60;
+		options.height = options.width;
 			
-		var link = svg.selectAll(".link")
-            .data(LogicalDiagram._graph.links)
-			.enter().append("line")
-            .attr("class", "link")
-			.style("marker-end", "url(#arrowhead)")
-			.on("mouseout", function (d) { d3.select("#tooltip").style("visibility", "hidden") })
-			.on("mouseover", function(d) {
-				d3.select("#tooltip").
-				 style("visibility", "visible").
-				 html(LogicalDiagram.linkTip(d)).
-				 style("top", function () { return (d3.event.pageY)+"px"}).
-				 style("left", function () { return (d3.event.pageX)+"px";})
+		var force = d3.layout.
+			force().
+			nodes(LogicalDiagram._data.components).
+			links(graph.links).
+			size([options.width, options.height]).
+			linkDistance(options.linkDistance).
+			charge(options.charge).
+			on("tick", LogicalDiagram.tick).start();
+
+		var svg = d3.select("#logicalDiagramCanvas").
+			append("svg:svg").
+			attr("width", options.width).
+			attr("height", options.height);
+			
+		var color = d3.scale.category20();
+			
+		var linkStyles = [];
+	    if (options.styleColumn) {
+			var x;
+			for (var i = 0; i < graph.links.length; i++) {
+				if (linkStyles.indexOf( x = graph.links[i].service[options.styleColumn].toLowerCase()) == -1) linkStyles.push(x);
+			}
+		} else linkStyles[0] = "defaultMarker";
+			
+		if (options.markerWidth) {	
+			svg.append("svg:defs").
+				selectAll("marker").
+				data(linkStyles).enter().
+				append("svg:marker").attr("id", String).
+				attr("viewBox", "0 -5 10 10").
+				attr("refX", 15).attr("refY", -1.5).
+				attr("markerWidth", options.markerWidth).
+				attr("markerHeight", options.markerHeight).
+				attr("orient", "auto").
+				append("svg:path").
+				attr("d", "M0,-5L10,0L0,5");
+		}
+		
+		LogicalDiagram._path = svg.append("svg:g").
+			selectAll("path").
+			data(force.links()).
+			enter().
+			append("svg:path").
+			attr("class", function(d) {
+				return "link " + (options.styleColumn ? d.service[options.styleColumn].toLowerCase() : linkStyles[0]);
+			}).attr("marker-end", function(d) {
+				return "url(#" + (options.styleColumn ? d.service[options.styleColumn].toLowerCase() : linkStyles[0] ) + ")";
 			});
-			
-		var pad = 1;
-		var node = svg.selectAll(".node")
-            .data(LogicalDiagram._graph.nodes)
-			.enter().append("rect")
-            .attr("class", "node")
-            .attr("width", function (d) { return d.width - 2 * pad; })
-            .attr("height", function (d) { return d.height - 2 * pad; })
-            .attr("rx", 5).attr("ry", 5)
-            .style("fill", function (d) { 
-				var component = LogicalDiagram._data.components.find(function(e) { return e.acronym === d.name });
-				if (component.services && component.services.length > 0) {
-					for (var j=0;j<component.services.length;j++) {				
-						if (LogicalDiagram.findSearchMatchesForService(component.services[j])) {
-							return "#33FF33";
-						}
-					}
-				}
-				var colorObj = LogicalDiagram._colorData.find(function(e) {	return e.acronym === d.name; });
-				if (colorObj) return colorObj.color; else return "#888888";
-			})
-            .call(c3.drag);
+		
+		LogicalDiagram._circle = svg.append("svg:g").
+			selectAll("circle").
+			data(force.nodes()).enter().
+			append("svg:circle").attr("r", function(d) {
+				return LogicalDiagram.getRadius(d);
+			}).style("fill", function(d) { return d[options.color];	}).call(force.drag);
 
-        var label = svg.selectAll(".label")
-            .data(LogicalDiagram._graph.nodes)
-			.enter().append("text")
-            .attr("class", "label")
-            .text(function (d) { return d.name; })
-            .call(c3.drag);
-
-        node.append("title")
-            .text(function (d) { return d.name; });
-
-		c3.on("tick", function () {
-            link.attr("x1", function (d) { return d.source.x; })
-                .attr("y1", function (d) { return d.source.y; })
-                .attr("x2", function (d) { return d.target.x; })
-                .attr("y2", function (d) { return d.target.y; });
-
-            node.attr("x", function (d) { return d.x - d.width / 2 + pad; })
-                .attr("y", function (d) { return d.y - d.height / 2 + pad; });
-            
-            group.attr("x", function (d) { return d.bounds.x; })
-                 .attr("y", function (d) { return d.bounds.y; })
-                .attr("width", function (d) { return d.bounds.width(); })
-                .attr("height", function (d) { return d.bounds.height(); });
-
-            label.attr("x", function (d) { return d.x; })
-                 .attr("y", function (d) {
-                     var h = this.getBBox().height;
-                     return d.y + h/4;
-                 });
-        });
+		if (options.nodeDescription) { LogicalDiagram._circle.append("title").text(
+			function(d) { 
+				return d[options.nodeDescription] + "\nDepends on " + (d.dependsOn ? d.dependsOn.length : "0") + " service(s)";
+			}); 
+		}
+    	if (options.linkName) {	LogicalDiagram._path.append("title").text(
+			function(d) {	
+				return d.service[options.linkName];	// should return # of dependencies on that component instead
+			});	
+		}
+		
+		LogicalDiagram._text = svg.append("svg:g").selectAll("g").data(force.nodes()).enter().append("svg:g");
+		LogicalDiagram._text.append("svg:text").
+			attr("x", options.labelFontSize).
+			attr("y", ".31em").
+			attr("class", "shadow").text(function(d) { return d[options.nodeLabel]; });
+		LogicalDiagram._text.append("svg:text").
+			attr("x", options.labelFontSize).
+			attr("y", ".31em").text(function(d) { return d[options.nodeLabel]; });
 
 	},
 	render : function(container, data) {
@@ -170,8 +153,23 @@ var LogicalDiagram = {
 			LogicalDiagram.refresh();
 		});
 	},
-	linkTip : function(link) {
-		return link.source.name + " depends on " + link.target.name;
+	getRadius : function(d) {
+		var options = LogicalDiagram._graph.options;
+		return options.radius * (options.nodeSize ? Math.sqrt(d[options.nodeSize]) / Math.PI : 1);
+    },
+	tick : function() {
+		LogicalDiagram._path.attr("d", function(d) {
+			var dx = d.target.x - d.source.x, dy = d.target.y - d.source.y, dr = Math.sqrt(dx * dx + dy * dy);
+			return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+		});
+
+		LogicalDiagram._circle.attr("transform", function(d) {
+			return "translate(" + d.x + "," + d.y + ")";
+		});
+
+		LogicalDiagram._text.attr("transform", function(d) {
+			return "translate(" + d.x + "," + d.y + ")";
+		});
 	},
 	findSearchMatchesForService : function(service) {
 		// search id, description, endpointSig and tags

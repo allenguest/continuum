@@ -6,23 +6,61 @@
 		display:inline-block;
 	}
 	
-	.node {
-		stroke: #fff;
-		stroke-width: 1.5px;
+	.node rect {
 		cursor: move;
+		fill-opacity: .9;
+		shape-rendering: crispEdges;
 	}
-
-	.group {
-		stroke: #fff;
-		stroke-width: 1.5px;
-		cursor: move;
-		opacity: 0.7;
+	
+	.node text {
+		pointer-events: none;
+		text-shadow: 0 1px 0 #fff;
 	}
 
 	.link {
-		stroke: #7a4e4e;
-		stroke-width: 4px;
-		stroke-opacity: 1;
+		fill: none;
+		stroke: #000;
+		stroke-opacity: .2;
+	}
+	
+	.link:hover {
+		stroke-opacity: .5;
+	}
+	
+	circle.node-dot {
+		fill: DarkSlateGray;
+		stroke: SlateGray;
+		stroke-width: 1px;
+	}
+	
+	path.link {
+		fill: none;
+		stroke: SlateGray;
+		stroke-width: 1.5px;
+	}
+	
+	marker#defaultMarker {
+		fill: SlateGray;
+	}
+
+	path.link.defaultMarker {
+		stroke: SlateGray;
+	}
+	
+	circle {
+		fill: #ccc;
+		stroke: #333;
+		stroke-width: 1.5px;
+	}
+
+	text {
+		pointer-events: none;
+	}
+
+	text.shadow {
+		stroke: #fff;
+		stroke-width: 3px;
+		stroke-opacity: .8;
 	}
 
 	.label {
@@ -48,7 +86,30 @@
 	}
 	
 	.info { }
+	
+	marker#rest{fill:green;}
+	marker#jms{fill:blue;}
+	
+	path.link.rest{stroke:green}
+	path.link.jms{stroke:blue;stroke-dasharray: 0, 2 1;} 
 </style>
 <div id="tooltip"></div>
 <div id="logicalDiagramCanvas" class="canvas" />
 <div id="logicalDiagramInfo" class="info" />
+
+
+
+
+   
+
+  
+
+
+  
+
+
+
+  
+
+
+
