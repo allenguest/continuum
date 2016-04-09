@@ -2,8 +2,11 @@ var LogicalDiagram = {
 	_data : null,
 	_container : null,
 	_colorData : [],
-	_graph : ["nodes","links","groups"],
+	_graph : ["options","nodes","links","groups"],
 	_searchText : "",
+	_path : null,
+	_circle : null,
+	_text : null,
 	init : function() {
 		LogicalDiagram._colorData.push({acronym: "AIS", color: "#399397"});
 		LogicalDiagram._colorData.push({acronym: "AccSync", color: "#404040"});
@@ -35,10 +38,12 @@ var LogicalDiagram = {
 		LogicalDiagram._graph.nodes = new Array();
 		LogicalDiagram._graph.links = new Array();
 		LogicalDiagram._graph.groups = new Array();
+		LogicalDiagram._graph.options = new Array();
+		
 		for (var i=0;i<LogicalDiagram._data.components.length;i++)
 		{
 			var component = LogicalDiagram._data.components[i];
-			LogicalDiagram._graph.nodes.push({name : component.acronym, width: 80, height: 40});
+			LogicalDiagram._graph.nodes.push({"label": component.acronym});
 			if (component.dependsOn) {
 				for (var j=0;j<component.dependsOn.length;j++) {
 					LogicalDiagram._data.components.find(function(dependComponent) {
@@ -53,113 +58,89 @@ var LogicalDiagram = {
 				}
 			}
 		}
-
+		
+		LogicalDiagram._graph.options.stackHeight = 12;
+		LogicalDiagram._graph.options.radius = 6;
+		LogicalDiagram._graph.options.fontSize = 12;
+		LogicalDiagram._graph.options.labelFontSize = 8;
+		LogicalDiagram._graph.options.nodeLabel = "label";
+		LogicalDiagram._graph.options.markerWidth = 6;
+		LogicalDiagram._graph.options.marketHeight = 6;
+		LogicalDiagram._graph.options.gap = 1.5;
+		LogicalDiagram._graph.options.nodeResize = "";
+		LogicalDiagram._graph.options.linkDistance = 240;
+		LogicalDiagram._graph.options.charge = -720;
+		LogicalDiagram._graph.options.styleColumn = null;
+		LogicalDiagram._graph.options.styles = null;
+		LogicalDiagram._graph.options.linkName = "linkName";
 	},
 	refresh : function() {
 		$("#logicalDiagramCanvas").empty();
-		var width = $(window).height() - 60,
-			height = width;
-			
-		var c3 = cola.d3adaptor().
-			linkDistance(150).
-			avoidOverlaps(true).
-			handleDisconnected(false).
-			size([width, height]);
-
-		var svg = d3.select("#logicalDiagramCanvas").append("svg")
-			.attr("width", width)
-			.attr("height", height)
-			
-		c3.nodes(LogicalDiagram._graph.nodes)
-			.links(LogicalDiagram._graph.links)
-			.groups(LogicalDiagram._graph.groups)
-			.start();
-			
-		svg.append("defs").append("marker")
-			.attr("id", "arrowhead")
-			.attr("refX", 6 + 3) /*must be smarter way to calculate shift*/
-			.attr("refY", 2)
-			.attr("markerWidth", 6)
-			.attr("markerHeight", 4)
-			.attr("orient", "auto")
-			.append("path")
-			.attr("d", "M 0,0 V 4 L6,2 Z"); //this is actual shape for arrowhead
+		var graph = LogicalDiagram._graph;
+		var options = graph.options;
 		
-		var group = svg.selectAll('.group')
-			.data(LogicalDiagram._graph.groups)
-			.enter().append("rect")
-			.attr("rx", 8)
-			.attr("ry", 8)
-			.attr("class", "group")
-			.style("fill", function(d, i) { return color(i); })
-			.call(c3.drag);
+		options.width = $(window).height() - 60;
+		options.height = options.width;
 			
-		var link = svg.selectAll(".link")
-            .data(LogicalDiagram._graph.links)
-			.enter().append("line")
-            .attr("class", "link")
-			.style("marker-end", "url(#arrowhead)")
-			.on("mouseout", function (d) { d3.select("#tooltip").style("visibility", "hidden") })
-			.on("mouseover", function(d) {
-				d3.select("#tooltip").
-				 style("visibility", "visible").
-				 html(LogicalDiagram.linkTip(d)).
-				 style("top", function () { return (d3.event.pageY)+"px"}).
-				 style("left", function () { return (d3.event.pageX)+"px";})
+		var force = d3.layout.
+			force().
+			nodes(graph.nodes).
+			links(graph.links).
+			size([options.width, options.height]).
+			linkDistance(options.linkDistance).charge(options.charge).on("tick", LogicalDiagram.tick).start();
+
+		var svg = d3.select("#logicalDiagramCanvas").
+			append("svg:svg").
+			attr("width", options.width).
+			attr("height", options.height);
+			
+		var color = d3.scale.category20();
+			
+		var linkStyles = [];
+		linkStyles[0] = "defaultMarker";
+			
+		svg.append("svg:defs").
+			selectAll("marker").
+			data(linkStyles).enter().
+			append("svg:marker").attr("id", String).
+			attr("viewBox", "0 -5 10 10").
+			attr("refX", 15).attr("refY", -1.5).
+			attr("markerWidth", options.markerWidth).
+			attr("markerHeight", options.markerHeight).
+			attr("orient", "auto").
+			append("svg:path").
+			attr("d", "M0,-5L10,0L0,5");
+			
+		LogicalDiagram._path = svg.append("svg:g").
+			selectAll("path").
+			data(force.links()).enter().
+			append("svg:path").attr("class", function(d) {
+				return "link " + (options.styleColumn ? d[options.styleColumn].toLowerCase() : linkStyles[0]);
+			}).attr("marker-end", function(d) {
+				return "url(#" + (options.styleColumn ? d[options.styleColumn].toLowerCase() : linkStyles[0] ) + ")";
 			});
-			
-		var pad = 1;
-		var node = svg.selectAll(".node")
-            .data(LogicalDiagram._graph.nodes)
-			.enter().append("rect")
-            .attr("class", "node")
-            .attr("width", function (d) { return d.width - 2 * pad; })
-            .attr("height", function (d) { return d.height - 2 * pad; })
-            .attr("rx", 5).attr("ry", 5)
-            .style("fill", function (d) { 
-				var component = LogicalDiagram._data.components.find(function(e) { return e.acronym === d.name });
-				if (component.services && component.services.length > 0) {
-					for (var j=0;j<component.services.length;j++) {				
-						if (LogicalDiagram.findSearchMatchesForService(component.services[j])) {
-							return "#33FF33";
-						}
-					}
-				}
-				var colorObj = LogicalDiagram._colorData.find(function(e) {	return e.acronym === d.name; });
+		
+		LogicalDiagram._circle = svg.append("svg:g").
+			selectAll("circle").
+			data(force.nodes()).enter().
+			append("svg:circle").attr("r", function(d) {
+				return LogicalDiagram.getRadius(d);
+			}).style("fill", function(d) {
+				var colorObj = LogicalDiagram._colorData.find(function(e) {	return e.acronym === d.label; });
 				if (colorObj) return colorObj.color; else return "#888888";
-			})
-            .call(c3.drag);
+			}).call(force.drag);
 
-        var label = svg.selectAll(".label")
-            .data(LogicalDiagram._graph.nodes)
-			.enter().append("text")
-            .attr("class", "label")
-            .text(function (d) { return d.name; })
-            .call(c3.drag);
-
-        node.append("title")
-            .text(function (d) { return d.name; });
-
-		c3.on("tick", function () {
-            link.attr("x1", function (d) { return d.source.x; })
-                .attr("y1", function (d) { return d.source.y; })
-                .attr("x2", function (d) { return d.target.x; })
-                .attr("y2", function (d) { return d.target.y; });
-
-            node.attr("x", function (d) { return d.x - d.width / 2 + pad; })
-                .attr("y", function (d) { return d.y - d.height / 2 + pad; });
-            
-            group.attr("x", function (d) { return d.bounds.x; })
-                 .attr("y", function (d) { return d.bounds.y; })
-                .attr("width", function (d) { return d.bounds.width(); })
-                .attr("height", function (d) { return d.bounds.height(); });
-
-            label.attr("x", function (d) { return d.x; })
-                 .attr("y", function (d) {
-                     var h = this.getBBox().height;
-                     return d.y + h/4;
-                 });
-        });
+		if (options.nodeLabel) { LogicalDiagram._circle.append("title").text(function(d) { return d[options.nodeLabel]; }); }
+    	if (options.linkName) {	LogicalDiagram._path.append("title").text(function(d) {	return d[options.linkName];	});	}
+		
+		LogicalDiagram._text = svg.append("svg:g").selectAll("g").data(force.nodes()).enter().append("svg:g");
+		LogicalDiagram._text.append("svg:text").
+			attr("x", options.labelFontSize).
+			attr("y", ".31em").
+			attr("class", "shadow").text(function(d) { return d[options.nodeLabel]; });
+		LogicalDiagram._text.append("svg:text").
+			attr("x", options.labelFontSize).
+			attr("y", ".31em").text(function(d) { return d[options.nodeLabel]; });
 
 	},
 	render : function(container, data) {
@@ -170,8 +151,24 @@ var LogicalDiagram = {
 			LogicalDiagram.refresh();
 		});
 	},
-	linkTip : function(link) {
-		return link.source.name + " depends on " + link.target.name;
+	getRadius : function(d) {
+		var graph = LogicalDiagram._graph;
+		var options = graph.options;
+		return options.radius * (options.nodeResize ? Math.sqrt(d[options.nodeResize]) / Math.PI : 1);
+    },
+	tick : function() {
+		LogicalDiagram._path.attr("d", function(d) {
+			var dx = d.target.x - d.source.x, dy = d.target.y - d.source.y, dr = Math.sqrt(dx * dx + dy * dy);
+			return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+		});
+
+		LogicalDiagram._circle.attr("transform", function(d) {
+			return "translate(" + d.x + "," + d.y + ")";
+		});
+
+		LogicalDiagram._text.attr("transform", function(d) {
+			return "translate(" + d.x + "," + d.y + ")";
+		});
 	},
 	findSearchMatchesForService : function(service) {
 		// search id, description, endpointSig and tags
