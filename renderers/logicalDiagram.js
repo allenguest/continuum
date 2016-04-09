@@ -1,7 +1,12 @@
 var LogicalDiagram = {
 	_data : null,
 	_container : null,
+<<<<<<< HEAD
 	_graph : ["options","links","groups"],
+=======
+	_colorData : [],
+	_graph : ["options","nodes","links","groups"],
+>>>>>>> origin/master
 	_searchText : "",
 	_path : null,
 	_circle : null,
@@ -11,6 +16,7 @@ var LogicalDiagram = {
 		LogicalDiagram._graph.groups = new Array();
 		LogicalDiagram._graph.options = new Array();
 		
+<<<<<<< HEAD
 		var servicesList = [];
 		for (var i=0;i<LogicalDiagram._data.components.length;i++) {
 			var component = LogicalDiagram._data.components[i];
@@ -24,6 +30,12 @@ var LogicalDiagram = {
 		for (var i=0;i<LogicalDiagram._data.components.length;i++)
 		{
 			var component = LogicalDiagram._data.components[i];
+=======
+		for (var i=0;i<LogicalDiagram._data.components.length;i++)
+		{
+			var component = LogicalDiagram._data.components[i];
+			LogicalDiagram._graph.nodes.push({"label": component.acronym});
+>>>>>>> origin/master
 			if (component.dependsOn) {
 				for (var j=0;j<component.dependsOn.length;j++) {
 					component.nodeSize = component.dependsOn.length * 20;
@@ -47,6 +59,7 @@ var LogicalDiagram = {
 		LogicalDiagram._graph.options.radius = 6;
 		LogicalDiagram._graph.options.fontSize = 12;
 		LogicalDiagram._graph.options.labelFontSize = 8;
+<<<<<<< HEAD
 		LogicalDiagram._graph.options.nodeLabel = "acronym";
 		LogicalDiagram._graph.options.nodeDescription = "name";
 		LogicalDiagram._graph.options.color = "color";
@@ -59,6 +72,18 @@ var LogicalDiagram = {
 		LogicalDiagram._graph.options.styleColumn = "endpointType";
 		LogicalDiagram._graph.options.styles = "endpointType";
 		LogicalDiagram._graph.options.linkName = "description";
+=======
+		LogicalDiagram._graph.options.nodeLabel = "label";
+		LogicalDiagram._graph.options.markerWidth = 6;
+		LogicalDiagram._graph.options.marketHeight = 6;
+		LogicalDiagram._graph.options.gap = 1.5;
+		LogicalDiagram._graph.options.nodeResize = "";
+		LogicalDiagram._graph.options.linkDistance = 240;
+		LogicalDiagram._graph.options.charge = -720;
+		LogicalDiagram._graph.options.styleColumn = null;
+		LogicalDiagram._graph.options.styles = null;
+		LogicalDiagram._graph.options.linkName = "linkName";
+>>>>>>> origin/master
 	},
 	refresh : function() {
 		$("#logicalDiagramCanvas").empty();
@@ -70,12 +95,19 @@ var LogicalDiagram = {
 			
 		var force = d3.layout.
 			force().
+<<<<<<< HEAD
 			nodes(LogicalDiagram._data.components).
 			links(graph.links).
 			size([options.width, options.height]).
 			linkDistance(options.linkDistance).
 			charge(options.charge).
 			on("tick", LogicalDiagram.tick).start();
+=======
+			nodes(graph.nodes).
+			links(graph.links).
+			size([options.width, options.height]).
+			linkDistance(options.linkDistance).charge(options.charge).on("tick", LogicalDiagram.tick).start();
+>>>>>>> origin/master
 
 		var svg = d3.select("#logicalDiagramCanvas").
 			append("svg:svg").
@@ -85,6 +117,7 @@ var LogicalDiagram = {
 		var color = d3.scale.category20();
 			
 		var linkStyles = [];
+<<<<<<< HEAD
 	    if (options.styleColumn) {
 			var x;
 			for (var i = 0; i < graph.links.length; i++) {
@@ -115,6 +148,29 @@ var LogicalDiagram = {
 				return "link " + (options.styleColumn ? d.service[options.styleColumn].toLowerCase() : linkStyles[0]);
 			}).attr("marker-end", function(d) {
 				return "url(#" + (options.styleColumn ? d.service[options.styleColumn].toLowerCase() : linkStyles[0] ) + ")";
+=======
+		linkStyles[0] = "defaultMarker";
+			
+		svg.append("svg:defs").
+			selectAll("marker").
+			data(linkStyles).enter().
+			append("svg:marker").attr("id", String).
+			attr("viewBox", "0 -5 10 10").
+			attr("refX", 15).attr("refY", -1.5).
+			attr("markerWidth", options.markerWidth).
+			attr("markerHeight", options.markerHeight).
+			attr("orient", "auto").
+			append("svg:path").
+			attr("d", "M0,-5L10,0L0,5");
+			
+		LogicalDiagram._path = svg.append("svg:g").
+			selectAll("path").
+			data(force.links()).enter().
+			append("svg:path").attr("class", function(d) {
+				return "link " + (options.styleColumn ? d[options.styleColumn].toLowerCase() : linkStyles[0]);
+			}).attr("marker-end", function(d) {
+				return "url(#" + (options.styleColumn ? d[options.styleColumn].toLowerCase() : linkStyles[0] ) + ")";
+>>>>>>> origin/master
 			});
 		
 		LogicalDiagram._circle = svg.append("svg:g").
@@ -122,6 +178,7 @@ var LogicalDiagram = {
 			data(force.nodes()).enter().
 			append("svg:circle").attr("r", function(d) {
 				return LogicalDiagram.getRadius(d);
+<<<<<<< HEAD
 			}).style("fill", function(d) { return d[options.color];	}).call(force.drag);
 
 		if (options.nodeDescription) { LogicalDiagram._circle.append("title").text(
@@ -134,6 +191,15 @@ var LogicalDiagram = {
 				return d.service[options.linkName];	// should return # of dependencies on that component instead
 			});	
 		}
+=======
+			}).style("fill", function(d) {
+				var colorObj = LogicalDiagram._colorData.find(function(e) {	return e.acronym === d.label; });
+				if (colorObj) return colorObj.color; else return "#888888";
+			}).call(force.drag);
+
+		if (options.nodeLabel) { LogicalDiagram._circle.append("title").text(function(d) { return d[options.nodeLabel]; }); }
+    	if (options.linkName) {	LogicalDiagram._path.append("title").text(function(d) {	return d[options.linkName];	});	}
+>>>>>>> origin/master
 		
 		LogicalDiagram._text = svg.append("svg:g").selectAll("g").data(force.nodes()).enter().append("svg:g");
 		LogicalDiagram._text.append("svg:text").
@@ -154,8 +220,14 @@ var LogicalDiagram = {
 		});
 	},
 	getRadius : function(d) {
+<<<<<<< HEAD
 		var options = LogicalDiagram._graph.options;
 		return options.radius * (options.nodeSize ? Math.sqrt(d[options.nodeSize]) / Math.PI : 1);
+=======
+		var graph = LogicalDiagram._graph;
+		var options = graph.options;
+		return options.radius * (options.nodeResize ? Math.sqrt(d[options.nodeResize]) / Math.PI : 1);
+>>>>>>> origin/master
     },
 	tick : function() {
 		LogicalDiagram._path.attr("d", function(d) {
