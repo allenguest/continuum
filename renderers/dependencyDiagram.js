@@ -24,7 +24,7 @@ var DependencyDiagram = {
 		var width = $(window).height() - 130,
 			height = width,
 			outerRadius = Math.min(width, height) / 2 - 10,
-			innerRadius = outerRadius - 48;
+			innerRadius = outerRadius - 48; 
 		
 		var depth = DependencyDiagram._data.components.length;
 		var parseComponents = [];
@@ -113,7 +113,7 @@ var DependencyDiagram = {
 			.on("mouseover", DependencyDiagram.chordMouseover);
 	},
 	render : function(container, data) {
-		$(container).load("renderers/dependencyDiagram.htm", function() {
+		$(container).load("renderers/dependencyDiagram.htm?uuid=" + DependencyDiagram.generateUUID(), function() {
 			DependencyDiagram._data = data;
 			DependencyDiagram._container = container;
 			DependencyDiagram.init();
@@ -395,5 +395,14 @@ var DependencyDiagram = {
 		DependencyDiagram.setSearchText(text);
 		DependencyDiagram.refresh();
 		DependencyDiagram.refreshInfo();
+	},
+	generateUUID : function() {
+		var d = new Date().getTime();
+		var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+			var r = (d + Math.random()*16)%16 | 0;
+			d = Math.floor(d/16);
+			return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+		});
+		return uuid;
 	}
 }

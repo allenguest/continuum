@@ -54,7 +54,7 @@ var LogicalDiagram = {
 		}
 		
 		LogicalDiagram._graph.options.stackHeight = 12;
-		LogicalDiagram._graph.options.radius = 6;
+		LogicalDiagram._graph.options.radius = 6; 
 		LogicalDiagram._graph.options.fontSize = 12;
 		LogicalDiagram._graph.options.labelFontSize = 8;
 		LogicalDiagram._graph.options.nodeLabel = "acronym";
@@ -183,7 +183,7 @@ var LogicalDiagram = {
 
 	},
 	render : function(container, data) {
-		$(container).load("renderers/logicalDiagram.htm", function() {
+		$(container).load("renderers/logicalDiagram.htm?uuid=" + LogicalDiagram.generateUUID(), function() {
 			LogicalDiagram._data = data;
 			LogicalDiagram._container = container;
 			LogicalDiagram.init();
@@ -237,5 +237,14 @@ var LogicalDiagram = {
 	searchFor : function(text) {
 		LogicalDiagram.setSearchText(text);
 		LogicalDiagram.render(LogicalDiagram._container, LogicalDiagram._data);
+	},
+	generateUUID : function() {
+		var d = new Date().getTime();
+		var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+			var r = (d + Math.random()*16)%16 | 0;
+			d = Math.floor(d/16);
+			return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+		});
+		return uuid;
 	}
 }
