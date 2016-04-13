@@ -6,14 +6,19 @@ var LogicalDiagram = {
 	_path : null,
 	_circle : null,
 	_text : null,
+	_collapseStates : [],
 	init : function() {
 		LogicalDiagram._graph.links = new Array();
 		LogicalDiagram._graph.groups = new Array();
 		LogicalDiagram._graph.options = new Array();
 
+		// Get list of all endpoints for all components
 		var servicesList = [];
 		for (var i=0;i<LogicalDiagram._data.components.length;i++) {
 			var component = LogicalDiagram._data.components[i];
+			component.nodeSizeNone = 0;
+			component.nodeSizeDependencies = 0;
+			component.nodeSizeDependents = 0;
 			if (component.services) {
 				for (var j=0;j<component.services.length;j++) {
 					servicesList.push(component.services[j]);
@@ -26,21 +31,26 @@ var LogicalDiagram = {
 			var component = LogicalDiagram._data.components[i];
 			if (component.dependsOn) {
 				for (var j=0;j<component.dependsOn.length;j++) {
-					component.nodeSize = component.dependsOn.length * 20;
+					component.nodeSizeDependencies = component.dependsOn.length;
 					LogicalDiagram._data.components.find(function(dependComponent) {
+						// once the dependenent component is found
 						if (component.dependsOn[j].endpointId.startsWith(dependComponent.acronym)) {
+							// reference the actual service
 							var serviceDefinition = servicesList.find(function(s) {
 								return s.id === component.dependsOn[j].endpointId;
 							});
+							
+							// Using the target component, create a relationship between the two (source, target) so we can graph
 							var t = LogicalDiagram._data.components.indexOf(dependComponent);
 							LogicalDiagram._graph.links.pushIfUnique({source:i, target:t, service:serviceDefinition}, function(e) {
 									return LogicalDiagram._data.components[e.source].acronym === component.acronym && 
 										LogicalDiagram._data.components[e.target].acronym === dependComponent.acronym;
 							});
+							dependComponent.nodeSizeDependents += 1;
 						}
 					});
 				}
-			} else component.nodeSize = 10;
+			}
 		}
 		
 		LogicalDiagram._graph.options.stackHeight = 12;
@@ -53,12 +63,15 @@ var LogicalDiagram = {
 		LogicalDiagram._graph.options.markerWidth = 6;
 		LogicalDiagram._graph.options.markerHeight = 6;
 		LogicalDiagram._graph.options.gap = 1.5;
-		LogicalDiagram._graph.options.nodeSize = "nodeSize";
 		LogicalDiagram._graph.options.linkDistance = 240;
 		LogicalDiagram._graph.options.charge = -720;
 		LogicalDiagram._graph.options.styleColumn = "endpointType";
 		LogicalDiagram._graph.options.styles = "endpointType";
 		LogicalDiagram._graph.options.linkName = "description";
+		
+		LogicalDiagram._componentSizeIndicator = "None";
+		
+		LogicalDiagram._collapseStates = [false, true, true];
 	},
 	refresh : function() {
 		$("#logicalDiagramCanvas").empty();
@@ -125,7 +138,9 @@ var LogicalDiagram = {
 
 		if (options.nodeDescription) { LogicalDiagram._circle.append("title").text(
 			function(d) { 
-				return d[options.nodeDescription] + "\nDepends on " + (d.dependsOn ? d.dependsOn.length : "0") + " service(s)";
+				return d[options.nodeDescription] + 
+					"\nDepends on " + (d.nodeSizeDependencies ? d.nodeSizeDependencies : "0") + " service(s)" +
+					"\nIs referenced " + (d.nodeSizeDependents ? d.nodeSizeDependents : "0") + " times(s)";
 			}); 
 		}
     	if (options.linkName) {	LogicalDiagram._path.append("title").text(
@@ -141,6 +156,30 @@ var LogicalDiagram = {
 		LogicalDiagram._text.append("svg:text").
 			attr("x", options.labelFontSize).
 			attr("y", ".31em").text(function(d) { return d[options.nodeLabel]; });
+			
+		
+		var html = new Array();
+		html.push("<div class='panel-group'>");
+		html.push("<div class='panel panel-default'>");
+		html.push("<div class='panel-heading'>Diagram Options</div>")
+
+		html.push("<div class='panel-body'>");
+		html.push("<div class='form-group'>");
+		html.push("<label for='componentSize'>Component size based on:</label>");
+		html.push("<select class='form-control' id='componentSize' onchange='LogicalDiagram.handleComponentSize(this)'>");
+		html.push("<option value='None' " + LogicalDiagram.isSelected("None") + ">None</option>");
+		html.push("<option value='Dependencies' " + LogicalDiagram.isSelected("Dependencies") + "># of Dependencies</option>");
+		html.push("<option value='Dependents'" + LogicalDiagram.isSelected("Dependents") + "># of Dependents</option>");
+		html.push("</select>");
+		html.push("</div>");
+		html.push("</div>");
+		
+		html.push("</div>");
+		html.push("</div>");
+		html.push("</div>");
+		$("#logicalDiagramInfo").empty().append(html.join(""))
+		
+		$(".info").css("display", "inline-block");
 
 	},
 	render : function(container, data) {
@@ -150,10 +189,11 @@ var LogicalDiagram = {
 			LogicalDiagram.init();
 			LogicalDiagram.refresh();
 		});
+		window.addEventListener("resize", LogicalDiagram.refresh)
 	},
 	getRadius : function(d) {
 		var options = LogicalDiagram._graph.options;
-		return options.radius * (options.nodeSize ? Math.sqrt(d[options.nodeSize]) / Math.PI : 1);
+		return options.radius * (LogicalDiagram._componentSizeIndicator ? Math.sqrt((d["nodeSize" + LogicalDiagram._componentSizeIndicator] + 1) * 10) / Math.PI : 1);
     },
 	tick : function() {
 		LogicalDiagram._path.attr("d", function(d) {
@@ -168,6 +208,13 @@ var LogicalDiagram = {
 		LogicalDiagram._text.attr("transform", function(d) {
 			return "translate(" + d.x + "," + d.y + ")";
 		});
+	},
+	handleComponentSize : function(element) {
+		LogicalDiagram._componentSizeIndicator = element.value;
+		LogicalDiagram.refresh();
+	},
+	isSelected : function(componentSizeIndicator) {
+		return (componentSizeIndicator === LogicalDiagram._componentSizeIndicator)? " selected" : "";
 	},
 	findSearchMatchesForService : function(service) {
 		// search id, description, endpointSig and tags
