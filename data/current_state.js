@@ -35,6 +35,14 @@
 			"endpointSig"	: "{baseUri}/domain2/{domainId}",
 			"tags"			: ["domain"],
 			"docLink"		: "http://localhost/docLink/TST1.DOMAIN.002"
+		},{
+			"id"			: "TST1.DOMAIN.003",
+			"description"	: "Description for TST1.DOMAIN.003 service",
+			"endpointType"	: "REST",
+			"endpointVerb"	: "GET",
+			"endpointSig"	: "{baseUri}/domain/{domainId}",
+			"tags"			: ["domain"],
+			"docLink"		: "http://localhost/docLink/TST1.DOMAIN.003"
 		}],
 		"dependsOn"		:
 		[

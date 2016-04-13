@@ -9,7 +9,7 @@ var DependencyMatrix = {
 		var component = DependencyMatrix._components[DependencyMatrix._selectedIndex];
 		var html = new Array();
 		html.push("<table><thead><tr>");
-		html.push("<th colspan='4' class='dm-component-info dm-" + component.acronym + "'>");
+		html.push("<th colspan='4' class='dm-component-info dm-element' style='background-color:" + component.color + "'>");
 		html.push("<div class='dm-component-header-left'>" + component.name + " [" + component.acronym + "]</div>");
 		html.push("<div class='dm-component-header-left'><span class='dm-component-description'>" + component.description + "</span>");
 		
@@ -47,7 +47,7 @@ var DependencyMatrix = {
 			var columnText = "";
 			for (var j=0;j<columnComponent.acronym.length;j++)
 				columnText += columnComponent.acronym[j] + " ";
-			var classTag = "dm-columnComponent dm-" + columnComponent.acronym;
+			var classTag = "dm-columnComponent dm-element" + columnComponent.acronym;
 			
 			if (columnComponent.services && columnComponent.services.length > 0) {
 				for (var j=0;j<columnComponent.services.length;j++) {				
@@ -57,7 +57,7 @@ var DependencyMatrix = {
 					}
 				}
 			}
-			html.push("<th onclick='DependencyMatrix.handleColumnClick(this)' class='" + classTag + "' >" + columnText + "</th>");
+			html.push("<th onclick='DependencyMatrix.handleColumnClick(this)' class='dm-columnComponent dm-element' style='background-color:" + columnComponent.color + "'>" + columnText + "</th>");
 		}
 		html.push("</tr>");
 		html.push("<tr><th class='dm-columnHeader dm-column-sortable' column='id' onclick='DependencyMatrix.handleSortClick(this)'>ID</th>");
