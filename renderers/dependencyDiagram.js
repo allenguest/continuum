@@ -2,10 +2,8 @@ var DependencyDiagram = {
 	_data : null,
 	_container : null,
 	_chord : null,
-	_colorData : [],
 	_chordSystems : [],
 	_chordData : [],
-	_chordColor : [],
 	_sortProperties : [],
 	_sortDirections: [],
 	_refreshMethod : null,
@@ -13,33 +11,6 @@ var DependencyDiagram = {
 	_collapseStates : [],
 	_searchText : "",
 	init : function() {
-		DependencyDiagram._colorData.push({acronym: "AIS", color: "#399397"});
-		DependencyDiagram._colorData.push({acronym: "AccSync", color: "#404040"});
-		DependencyDiagram._colorData.push({acronym: "BRM", color: "#00B0F0"});
-		DependencyDiagram._colorData.push({acronym: "BRMSOA", color: "#00B0F0"});
-		DependencyDiagram._colorData.push({acronym: "CDI", color: "#44546A"});
-		DependencyDiagram._colorData.push({acronym: "CBS", color: "#404040"});
-		DependencyDiagram._colorData.push({acronym: "CDC", color: "#606060"});
-		DependencyDiagram._colorData.push({acronym: "CPE", color: "#44546A"});
-		DependencyDiagram._colorData.push({acronym: "CRED-SVC", color: "#ED7D31"});
-		DependencyDiagram._colorData.push({acronym: "ESB", color: "#7030A0"});
-		DependencyDiagram._colorData.push({acronym: "EMS", color: "#ED7D31"});
-		DependencyDiagram._colorData.push({acronym: "FFM", color: "#ED7D31"});
-		DependencyDiagram._colorData.push({acronym: "FFMSOA", color: "#ED7D31"});
-		DependencyDiagram._colorData.push({acronym: "HPSA", color: "#4472C4"});
-		DependencyDiagram._colorData.push({acronym: "JMS", color: "#7030A0"});
-		DependencyDiagram._colorData.push({acronym: "LMS", color: "#C02020"});
-		DependencyDiagram._colorData.push({acronym: "MyAcc", color: "#ED7D31"});
-		DependencyDiagram._colorData.push({acronym: "NSA", color: "#399397"});
-		DependencyDiagram._colorData.push({acronym: "OE", color: "#70AD47"});
-		DependencyDiagram._colorData.push({acronym: "OM", color: "#70AD47"});
-		DependencyDiagram._colorData.push({acronym: "PC", color: "#4472C4"});
-		DependencyDiagram._colorData.push({acronym: "PIM", color: "#70AD47"});
-		DependencyDiagram._colorData.push({acronym: "SecMtx", color: "#ED7D31"});
-		DependencyDiagram._colorData.push({acronym: "TN", color: "#44546A"});
-		DependencyDiagram._colorData.push({acronym: "TSS", color: "#C02020"});
-		DependencyDiagram._colorData.push({acronym: "TVSC", color: "#A04040"});
-		DependencyDiagram._colorData.push({acronym: "UDGF", color: "#ED7D31"});
 		DependencyDiagram._sortProperties = ["id","id","id"];
 		DependencyDiagram._sortDirections = ["asc","asc","asc"];
 		DependencyDiagram._collapseStates = [false, true, true];
@@ -47,7 +18,6 @@ var DependencyDiagram = {
 	refresh : function() {
 		DependencyDiagram._chordSystems = [];
 		DependencyDiagram._chordData = [];
-		DependencyDiagram._chordColor = [];
 		
 		$("#dependencyDiagramCanvas").empty();
 		var width = $(window).height() - 130,
@@ -89,7 +59,6 @@ var DependencyDiagram = {
 			var sum = parseComponents[i].reduce((a,b) => a + b, 0);
 			DependencyDiagram._chordSystems.push(DependencyDiagram._data.components[i]);
 			DependencyDiagram._chordData.push(parseComponents[i]);
-			DependencyDiagram._chordColor.push(DependencyDiagram._colorData[i]);
 		}
 
 		var arc = d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius);
@@ -117,7 +86,7 @@ var DependencyDiagram = {
 			.attr("id", function(d, i) { return "group" + i; })
 			.attr("d", arc)
 			.style("fill", function(d, i) { 
-				return (DependencyDiagram.findSearchMatchesInComponent(DependencyDiagram._chordSystems[i])?"#33FF33":DependencyDiagram._chordColor[i].color);
+				return (DependencyDiagram.findSearchMatchesInComponent(DependencyDiagram._chordSystems[i])?"#33FF33":DependencyDiagram._chordSystems[i].color);
 			});
 
 		var groupText = group.append("text").attr("dx", 6).attr("dy", 15);
@@ -136,7 +105,7 @@ var DependencyDiagram = {
 				for (var i=0;i<dependentServices.length;i++) {
 					if (DependencyDiagram.findSearchMatchesForService(dependentServices[i])) return "#33FF33";
 				}
-				return DependencyDiagram._chordColor[d.source.index].color; 
+				return sourceComponent.color; 
 			})
 			.attr("d", path)
 			.on("click", function(d) { DependencyDiagram.renderEndpointInfo(d); })
@@ -202,8 +171,8 @@ var DependencyDiagram = {
 		html.push("</div></div>");
 		
 		$("#dependencyDiagramInfo").empty().append(html.join(""))
-		$(".infoHeader-target").css("background-color", DependencyDiagram._chordColor[d.target.index].color);
-		$(".infoHeader-source").css("background-color", DependencyDiagram._chordColor[d.source.index].color);
+		$(".infoHeader-target").css("background-color", DependencyDiagram._chordSystems[d.target.index].color);
+		$(".infoHeader-source").css("background-color", DependencyDiagram._chordSystems[d.source.index].color);
 		$(".info").css("display", "inline-block");
 	},
 	renderComponentInfo(d) {
@@ -314,7 +283,7 @@ var DependencyDiagram = {
 		html.push("</div>");
 		
 		$("#dependencyDiagramInfo").empty().append(html.join(""))
-		$(".infoHeader").css("background-color", DependencyDiagram._chordColor[d.index].color);
+		$(".infoHeader").css("background-color", DependencyDiagram._chordSystems[d.index].color);
 		$(".info").css("display", "inline-block");
 	},
 	groupTip : function(d) {
