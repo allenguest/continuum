@@ -102,7 +102,7 @@ var DependencyMatrix = {
 		$(DependencyMatrix._container).find(".dm-header").empty().append(html.join(""))
 	},
 	render : function(container, data) {
-		$(container).load("renderers/dependencyMatrix.htm", function() {
+		$(container).load("renderers/dependencyMatrix.htm?uuid=" + DependencyMatrix.generateUUID(), function() {
 			DependencyMatrix._components = DependencyMatrix.sortComponents(data.components);
 			DependencyMatrix._selectedIndex = 0;
 			DependencyMatrix._container = container;
@@ -180,5 +180,14 @@ var DependencyMatrix = {
 	searchFor : function(text) {
 		DependencyMatrix.setSearchText(text);
 		DependencyMatrix.refresh();
+	},
+	generateUUID : function() {
+		var d = new Date().getTime();
+		var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+			var r = (d + Math.random()*16)%16 | 0;
+			d = Math.floor(d/16);
+			return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+		});
+		return uuid;
 	}
 }

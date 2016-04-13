@@ -2,6 +2,7 @@ var DependencyDiagram = {
 	_data : null,
 	_container : null,
 	_chord : null,
+	_group : null,
 	_chordSystems : [],
 	_chordData : [],
 	_sortProperties : [],
@@ -23,15 +24,15 @@ var DependencyDiagram = {
 		var width = $(window).height() - 130,
 			height = width,
 			outerRadius = Math.min(width, height) / 2 - 10,
-			innerRadius = outerRadius - 48;
+			innerRadius = outerRadius - 48; 
 		
 		var depth = DependencyDiagram._data.components.length;
 		var parseComponents = [];
-		for (var i=0;i<depth;i++) // AIS, BRM, BRMSOA ...
+		for (var i=0;i<depth;i++) 
 		{
 			parseComponents.push([]);
 			if (DependencyDiagram._data.components[i].services && DependencyDiagram._data.components[i].services.length > 0) {
-				for (var j=0;j<depth;j++) // AIS, BRM, BRMSOA ...
+				for (var j=0;j<depth;j++)
 				{
 					if (DependencyDiagram._data.components[j].dependsOn && DependencyDiagram._data.components[j].dependsOn.length > 0) {
 						// return # of endpoints that component[j] has dependencies for
@@ -74,7 +75,7 @@ var DependencyDiagram = {
 		
 		layout.matrix(DependencyDiagram._chordData);
   
-		var group = svg.selectAll("g.group")
+		DependencyDiagram._group = svg.selectAll("g.group")
 			.data(layout.groups())
 			.enter().append("svg:g")
 			.attr("class", "group")
@@ -82,14 +83,14 @@ var DependencyDiagram = {
 			.on("click", DependencyDiagram.renderComponentInfo)
 			.on("mouseout", function (d) { d3.select("#tooltip").style("visibility", "hidden") });
 
-		var groupPath = group.append("svg:path")
+		var groupPath = DependencyDiagram._group.append("svg:path")
 			.attr("id", function(d, i) { return "group" + i; })
 			.attr("d", arc)
 			.style("fill", function(d, i) { 
 				return (DependencyDiagram.findSearchMatchesInComponent(DependencyDiagram._chordSystems[i])?"#33FF33":DependencyDiagram._chordSystems[i].color);
 			});
 
-		var groupText = group.append("text").attr("dx", 6).attr("dy", 15);
+		var groupText = DependencyDiagram._group.append("text").attr("dx", 6).attr("dy", 15);
 		groupText.append("textPath")
 			.attr("xlink:href", function(d, i) { return "#group" + i; })
 			.text(function(d, i) { return DependencyDiagram._chordSystems[i].acronym; });
@@ -109,16 +110,10 @@ var DependencyDiagram = {
 			})
 			.attr("d", path)
 			.on("click", function(d) { DependencyDiagram.renderEndpointInfo(d); })
-			.on("mouseover", function(d) {
-				d3.select("#tooltip").
-				 style("visibility", "visible").
-				 html(DependencyDiagram.chordTip(d)).
-				 style("top", function () { return (d3.event.pageY)+"px"}).
-				 style("left", function () { return (d3.event.pageX)+"px";})
-			});
+			.on("mouseover", DependencyDiagram.chordMouseover);
 	},
 	render : function(container, data) {
-		$(container).load("renderers/dependencyDiagram.htm", function() {
+		$(container).load("renderers/dependencyDiagram.htm?uuid=" + DependencyDiagram.generateUUID(), function() {
 			DependencyDiagram._data = data;
 			DependencyDiagram._container = container;
 			DependencyDiagram.init();
@@ -295,16 +290,28 @@ var DependencyDiagram = {
 	chordTip : function(d) {
 		return DependencyDiagram._chordSystems[d.target.index].acronym + " uses " + DependencyDiagram._chordData[d.source.index][d.target.index] + " " + DependencyDiagram._chordSystems[d.source.index].acronym + " endpoints" ;
 	},
-	groupMouseover : function(d, i) {
-		 d3.select("#tooltip")
-              .style("visibility", "visible")
-              .html(DependencyDiagram.groupTip(d))
-              .style("top", function () { return (d3.event.pageY)+"px"})
-              .style("left", function () { return (d3.event.pageX)+"px";})
-		
-		DependencyDiagram._chord.classed("fade", function(p) {
-			return p.source.index != i && p.target.index != i;
+	chordMouseover : function(d) {
+		d3.select("#tooltip").
+				 style("visibility", "visible").
+				 html(DependencyDiagram.chordTip(d)).
+				 style("top", function () { return (d3.event.pageY)+"px"}).
+				 style("left", function () { return (d3.event.pageX)+"px";})
+				 
+		DependencyDiagram._chord.classed("fadeElement", function(p) {
+			return p != d;
 		});
+	},
+	groupMouseover : function(d, i) {
+		d3.select("#tooltip")
+			.style("visibility", "visible")
+            .html(DependencyDiagram.groupTip(d))
+            .style("top", function () { return (d3.event.pageY)+"px"})
+            .style("left", function () { return (d3.event.pageX)+"px";})
+
+		DependencyDiagram._chord.classed("fadeElement", function(p) {
+			return (p.source.index != i) && (p.target.index != i);
+		});
+		
 	},
 	handleDocClick : function(element) {
 		var link = $(element).attr("link");
@@ -388,5 +395,14 @@ var DependencyDiagram = {
 		DependencyDiagram.setSearchText(text);
 		DependencyDiagram.refresh();
 		DependencyDiagram.refreshInfo();
+	},
+	generateUUID : function() {
+		var d = new Date().getTime();
+		var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+			var r = (d + Math.random()*16)%16 | 0;
+			d = Math.floor(d/16);
+			return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+		});
+		return uuid;
 	}
 }

@@ -6,6 +6,20 @@
 		display:inline-block;
 	}
 	
+	#tooltip {
+		color: white;
+        opacity: .9;
+        background: #333;
+        padding: 5px;
+        border: 1px solid lightgrey;
+        border-radius: 5px;
+        position: absolute;
+        z-index: 40;
+        visibility: hidden;
+        white-space: nowrap;
+        pointer-events: none;
+	}
+	
 	.node rect {
 		cursor: move;
 		fill-opacity: .9;
@@ -28,7 +42,7 @@
 	}
 	
 	circle.node-dot {
-		fill: DarkSlateGray;
+		fill: DarkSlateGray; 
 		stroke: SlateGray;
 		stroke-width: 1px;
 	}
@@ -90,6 +104,17 @@
 	
 	path.link.rest{stroke:green}
 	path.link.jms{stroke:blue;stroke-dasharray: 0, 2 1;}
+	
+	.info {
+		z-index: 30;
+		background-color: #FFFFFF;
+		font: 10pt sans-serif;
+		position: relative;
+		display:none;
+		float:right;
+		padding: 5px 5px;
+		width: 300px;
+	}
 	
 </style>
 <div id="tooltip"></div>
