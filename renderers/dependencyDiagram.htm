@@ -52,23 +52,26 @@
 		fill: none;
 		pointer-events: all;
 	}
-	#circle:hover path.fade {
-		display: none;
+	
+
+	#circle:hover path.fadeElement {
+		fill-opacity: 0.2;
 	}
+	
 	.group path {
 		fill-opacity: .5;
+		cursor:pointer;
 	}
 	path.group {
 		fill-opacity: .8;
-     }
+	}
+	
     path.chord {
 		fill-opacity: .8;
         stroke: #000;
         stroke-width: .25px;
+		cursor:pointer;
      }
-	 
-
-
 </style>
 <div id="tooltip"></div>
 <div id="dependencyDiagramCanvas" class="canvas" />
