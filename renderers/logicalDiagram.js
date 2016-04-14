@@ -6,7 +6,7 @@ var LogicalDiagram = {
 	_path : null,
 	_circle : null,
 	_text : null,
-	_collapseStates : [],
+	_searchMatchColor : "#30FF30",
 	init : function() {
 		LogicalDiagram._graph.links = new Array();
 		LogicalDiagram._graph.groups = new Array();
@@ -68,10 +68,6 @@ var LogicalDiagram = {
 		LogicalDiagram._graph.options.styleColumn = "endpointType";
 		LogicalDiagram._graph.options.styles = "endpointType";
 		LogicalDiagram._graph.options.linkName = "description";
-		
-		LogicalDiagram._componentSizeIndicator = "None";
-		
-		LogicalDiagram._collapseStates = [false, true, true];
 	},
 	refresh : function() {
 		$("#logicalDiagramCanvas").empty();
@@ -134,7 +130,15 @@ var LogicalDiagram = {
 			data(force.nodes()).enter().
 			append("svg:circle").attr("r", function(d) {
 				return LogicalDiagram.getRadius(d);
-			}).style("fill", function(d) { return d[options.color];	}).call(force.drag);
+			}).style("fill", function(d) {
+				if (d.services && d.services.length > 0) {
+					for (var j=0;j<d.services.length;j++) {
+						if (LogicalDiagram.findSearchMatchesForService(d.services[j]))
+							return LogicalDiagram._searchMatchColor;
+					}
+				}
+				return d[options.color];	
+			}).call(force.drag);
 
 		if (options.nodeDescription) { LogicalDiagram._circle.append("title").text(
 			function(d) { 
@@ -193,7 +197,7 @@ var LogicalDiagram = {
 	},
 	getRadius : function(d) {
 		var options = LogicalDiagram._graph.options;
-		return options.radius * (LogicalDiagram._componentSizeIndicator ? Math.sqrt((d["nodeSize" + LogicalDiagram._componentSizeIndicator] + 1) * 10) / Math.PI : 1);
+		return options.radius * (LogicalDiagram.getState("componentSizeIndicator") ? Math.sqrt((d["nodeSize" + LogicalDiagram.getState("componentSizeIndicator", "None")] + 1) * 10) / Math.PI : 1);
     },
 	tick : function() {
 		LogicalDiagram._path.attr("d", function(d) {
@@ -210,11 +214,11 @@ var LogicalDiagram = {
 		});
 	},
 	handleComponentSize : function(element) {
-		LogicalDiagram._componentSizeIndicator = element.value;
+		LogicalDiagram.setState("componentSizeIndicator", element.value);
 		LogicalDiagram.refresh();
 	},
 	isSelected : function(componentSizeIndicator) {
-		return (componentSizeIndicator === LogicalDiagram._componentSizeIndicator)? " selected" : "";
+		return (componentSizeIndicator === LogicalDiagram.getState("componentSizeIndicator", "None")) ? " selected" : "";
 	},
 	findSearchMatchesForService : function(service) {
 		// search id, description, endpointSig and tags
@@ -236,7 +240,13 @@ var LogicalDiagram = {
 	},
 	searchFor : function(text) {
 		LogicalDiagram.setSearchText(text);
-		LogicalDiagram.render(LogicalDiagram._container, LogicalDiagram._data);
+		LogicalDiagram.refresh();
+	},
+	setState : function(key, value) {
+		if (window.localStorage) window.localStorage[key] = value;
+	},
+	getState : function(key, defaultValue) {
+		return window.localStorage ? window.localStorage[key] : defaultValue ? defaultValue : "";
 	},
 	generateUUID : function() {
 		var d = new Date().getTime();
