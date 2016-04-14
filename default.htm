@@ -32,18 +32,25 @@
 		
 		    var url = window.location.href.split("#");
 			var renderer = (url.length > 1)?url[1]:"dependencyMatrix";
-
-			Repository.load("data/current_state.js", 
-				function() { Repository.render(renderer, $(".container-fluid"), function(msg) { Repository.alert("#alertModal", "Error", msg); }); }, 
+			
+			Repository.load("data/repositories.js",
+				function(json) { Repository.initialize("#selRepositories", json, renderer); }, 
 				function(msg) { Repository.alert("#alertModal", "Error", msg); });
       });
     </script>
   </head>
   <body>
     <div class="header">
-      <div class="search-block">
-        <div class="search-block-inner"><input id="search" type="search" placeholder="search" onkeyup="Repository.handleSearchRequest(this)"/></div>
-      </div>
+		<div class="search-block">
+			<div class="search-block-inner">
+				<input id="search" type="search" placeholder="search" onkeyup="Repository.handleSearchRequest(this);"/>
+			</div>
+		</div>
+		<div class="menu-block">
+			<div class="menu-block-inner">
+				<select id="selRepositories" class="form-control show-tick" onChange="Repository.handleRepositoryClick(this);"></select>
+			</div>
+		</div>
     </div>
     <ul class="navigation">
       <li class="nav-item"><a onclick="Repository.handleNavigationClick('dependencyDiagram')">Dependency Diagram</a></li>
@@ -51,7 +58,7 @@
 	  <li class="nav-item"><a onclick="Repository.handleNavigationClick('logicalDiagram')">Logical Diagram</a></li>
     </ul>
     <input type="checkbox" id="nav-trigger" class="nav-trigger">
-    <label for="nav-trigger"><div class="container-title">Dependency Matrix</div></label>
+    <label for="nav-trigger"><div class="container-title"></div></label>
     <div class="site-wrap"><div class="container-fluid"></div></div>
 
     <div id="alertModal" class="modal fade" role="dialog">
