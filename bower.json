@@ -1,0 +1,9 @@
+{
+  "name": "continuum",
+  "dependencies": {
+    "d3": "^3.5.17",
+    "jquery": "^2.2.4",
+    "bootstrap": "^3.3.6",
+    "d3-queue": "^2.0.3"
+  }
+}
