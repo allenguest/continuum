@@ -25,7 +25,7 @@ var LogicalDiagram = {
 				}
 			}
 		}
-		
+
 		for (var i=0;i<LogicalDiagram._data.components.length;i++)
 		{
 			var component = LogicalDiagram._data.components[i];
@@ -39,11 +39,11 @@ var LogicalDiagram = {
 							var serviceDefinition = servicesList.find(function(s) {
 								return s.id === component.dependsOn[j].endpointId;
 							});
-							
+
 							// Using the target component, create a relationship between the two (source, target) so we can graph
 							var t = LogicalDiagram._data.components.indexOf(dependComponent);
 							LogicalDiagram._graph.links.pushIfUnique({source:i, target:t, service:serviceDefinition}, function(e) {
-									return LogicalDiagram._data.components[e.source].acronym === component.acronym && 
+									return LogicalDiagram._data.components[e.source].acronym === component.acronym &&
 										LogicalDiagram._data.components[e.target].acronym === dependComponent.acronym;
 							});
 							dependComponent.nodeSizeDependents += 1;
@@ -52,9 +52,9 @@ var LogicalDiagram = {
 				}
 			}
 		}
-		
+
 		LogicalDiagram._graph.options.stackHeight = 12;
-		LogicalDiagram._graph.options.radius = 6; 
+		LogicalDiagram._graph.options.radius = 6;
 		LogicalDiagram._graph.options.fontSize = 12;
 		LogicalDiagram._graph.options.labelFontSize = 8;
 		LogicalDiagram._graph.options.nodeLabel = "acronym";
@@ -73,10 +73,10 @@ var LogicalDiagram = {
 		$("#logicalDiagramCanvas").empty();
 		var graph = LogicalDiagram._graph;
 		var options = graph.options;
-		
+
 		options.width = $(window).height() - 60;
 		options.height = options.width;
-			
+
 		var force = d3.layout.
 			force().
 			nodes(LogicalDiagram._data.components).
@@ -89,9 +89,9 @@ var LogicalDiagram = {
 			append("svg:svg").
 			attr("width", options.width).
 			attr("height", options.height);
-			
+
 		var color = d3.scale.category20();
-			
+
 		var linkStyles = [];
 	    if (options.styleColumn) {
 			var x;
@@ -99,8 +99,8 @@ var LogicalDiagram = {
 				if (linkStyles.indexOf( x = graph.links[i].service[options.styleColumn].toLowerCase()) == -1) linkStyles.push(x);
 			}
 		} else linkStyles[0] = "defaultMarker";
-			
-		if (options.markerWidth) {	
+
+		if (options.markerWidth) {
 			svg.append("svg:defs").
 				selectAll("marker").
 				data(linkStyles).enter().
@@ -113,7 +113,7 @@ var LogicalDiagram = {
 				append("svg:path").
 				attr("d", "M0,-5L10,0L0,5");
 		}
-		
+
 		LogicalDiagram._path = svg.append("svg:g").
 			selectAll("path").
 			data(force.links()).
@@ -124,7 +124,7 @@ var LogicalDiagram = {
 			}).attr("marker-end", function(d) {
 				return "url(#" + (options.styleColumn ? d.service[options.styleColumn].toLowerCase() : linkStyles[0] ) + ")";
 			});
-		
+
 		LogicalDiagram._circle = svg.append("svg:g").
 			selectAll("circle").
 			data(force.nodes()).enter().
@@ -137,20 +137,20 @@ var LogicalDiagram = {
 							return LogicalDiagram._searchMatchColor;
 					}
 				}
-				return d[options.color];	
+				return d[options.color];
 			}).call(force.drag);
 
 		if (options.nodeDescription) { LogicalDiagram._circle.append("title").text(
-			function(d) { 
-				return d[options.nodeDescription] + 
+			function(d) {
+				return d[options.nodeDescription] +
 					"\nDepends on " + (d.nodeSizeDependencies ? d.nodeSizeDependencies : "0") + " service(s)" +
 					"\nIs referenced " + (d.nodeSizeDependents ? d.nodeSizeDependents : "0") + " times(s)";
-			}); 
+			});
 		}
     	if (options.linkName) {	LogicalDiagram._path.append("title").text(
-			function(d) {	
+			function(d) {
 				return d.service[options.linkName];	// should return # of dependencies on that component instead
-			});	
+			});
 		}
 		LogicalDiagram._text = svg.append("svg:g").selectAll("g").data(force.nodes()).enter().append("svg:g");
 		LogicalDiagram._text.append("svg:text").
@@ -160,8 +160,8 @@ var LogicalDiagram = {
 		LogicalDiagram._text.append("svg:text").
 			attr("x", options.labelFontSize).
 			attr("y", ".31em").text(function(d) { return d[options.nodeLabel]; });
-			
-		
+
+
 		var html = new Array();
 		html.push("<div class='panel-group'>");
 		html.push("<div class='panel panel-default'>");
@@ -177,17 +177,17 @@ var LogicalDiagram = {
 		html.push("</select>");
 		html.push("</div>");
 		html.push("</div>");
-		
+
 		html.push("</div>");
 		html.push("</div>");
 		html.push("</div>");
 		$("#logicalDiagramInfo").empty().append(html.join(""))
-		
+
 		$(".info").css("display", "inline-block");
 
 	},
 	render : function(container, data) {
-		$(container).load("renderers/logicalDiagram.htm?uuid=" + LogicalDiagram.generateUUID(), function() {
+		$(container).load("./templates/logicalDiagram.htm?uuid=" + LogicalDiagram.generateUUID(), function() {
 			LogicalDiagram._data = data;
 			LogicalDiagram._container = container;
 			LogicalDiagram.init();

@@ -6,35 +6,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Architecture Repository</title>
 
-	<link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="assets/style.css">
-    <link rel="stylesheet" type="text/css" href="bootstrap-3.3.6-dist/css/bootstrap.min.css">
+	<link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap/css/bootstrap.min.css">
 
     <!-- framework libraries -->
-    <script src="jQuery/jquery-2.2.3.min.js"></script>
-    <script src="bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
-    <script src="assets/d3.min.js"></script>
+    <script src="lib/jQuery/jquery-2.2.3.min.js"></script>
+    <script src="lib/bootstrap/js/bootstrap.min.js"></script>
+    <script src="lib/d3/d3.min.js"></script>
 
     <!-- application libraries -->
-	<script src="assets/repository.js"></script>
-	<script src="assets/queue.v1.min.js"></script>
+	<script src="js/repository.js"></script>
+	<script src="lib/queue.v1.min.js"></script>
 
     <!-- repository renderers (REFACTOR: should load these dynamically from a single known renderers JSON file instead of hard coding here) -->
-    <script src="renderers/logicalDiagram.js"></script>
-    <script src="renderers/dependencyDiagram.js"></script>
-    <script src="renderers/dependencyMatrix.js"></script>
+    <script src="js/renderers/logicalDiagram.js"></script>
+    <script src="js/renderers/dependencyDiagram.js"></script>
+    <script src="js/renderers/dependencyMatrix.js"></script>
 
     <script language="javascript">
-		$(document).ready(function() { 
+		$(document).ready(function() {
 			Repository.registerRenderer("logicalDiagram", LogicalDiagram, "Logical Diagram");
 			Repository.registerRenderer("dependencyDiagram", DependencyDiagram, "Dependency Chord Diagram");
 			Repository.registerRenderer("dependencyMatrix", DependencyMatrix, "Dependency Matrix");
-		
-		    var url = window.location.href.split("#");
+
+		  var url = window.location.href.split("#");
 			var renderer = (url.length > 1)?url[1]:"dependencyMatrix";
-			
+
 			Repository.load("data/repositories.js",
-				function(json) { Repository.initialize("#selRepositories", json, renderer); }, 
+				function(json) { Repository.initialize("#selRepositories", json, renderer); },
 				function(msg) { Repository.alert("#alertModal", "Error", msg); });
       });
     </script>
