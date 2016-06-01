@@ -5,7 +5,7 @@
 		font: 10px sans-serif;
 		display:inline-block;
 	}
-	
+
 	#tooltip {
 		color: white;
         opacity: .9;
@@ -19,13 +19,13 @@
         white-space: nowrap;
         pointer-events: none;
 	}
-	
+
 	.node rect {
 		cursor: move;
 		fill-opacity: .9;
 		shape-rendering: crispEdges;
 	}
-	
+
 	.node text {
 		pointer-events: none;
 		text-shadow: 0 1px 0 #fff;
@@ -36,23 +36,23 @@
 		stroke: #000;
 		stroke-opacity: .2;
 	}
-	
+
 	.link:hover {
 		stroke-opacity: .5;
 	}
-	
+
 	circle.node-dot {
-		fill: DarkSlateGray; 
+		fill: DarkSlateGray;
 		stroke: SlateGray;
 		stroke-width: 1px;
 	}
-	
+
 	path.link {
 		fill: none;
 		stroke: SlateGray;
 		stroke-width: 1.5px;
 	}
-	
+
 	marker#defaultMarker {
 		fill: SlateGray;
 	}
@@ -60,7 +60,7 @@
 	path.link.defaultMarker {
 		stroke: SlateGray;
 	}
-	
+
 	circle {
 		fill: #ccc;
 		stroke: #333;
@@ -84,7 +84,7 @@
 		text-anchor: middle;
 		cursor: move;
 	}
-	
+
 	#tooltip {
 		color: white;
         opacity: .9;
@@ -98,13 +98,14 @@
         white-space: nowrap;
         pointer-events: none;
 	}
-	
+
 	marker#rest{fill:green;}
 	marker#jms{fill:blue;}
-	
+
 	path.link.rest{stroke:green}
 	path.link.jms{stroke:blue;stroke-dasharray: 0, 2 1;}
-	
+	path.link.sftp{stroke:purple;stroke-dasharray: 0, 2 1;}
+
 	.info {
 		z-index: 30;
 		background-color: #FFFFFF;
@@ -115,27 +116,10 @@
 		padding: 5px 5px;
 		width: 300px;
 	}
-	
+
 	.ld-searchMatch { background-color: #30FF30 !important; }
-	
+
 </style>
 <div id="tooltip"></div>
 <div id="logicalDiagramCanvas" class="canvas" />
 <div id="logicalDiagramInfo" class="info" />
-
-
-
-
-   
-
-  
-
-
-  
-
-
-
-  
-
-
-
