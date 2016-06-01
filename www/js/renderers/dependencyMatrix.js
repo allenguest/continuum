@@ -12,13 +12,13 @@ var DependencyMatrix = {
 		html.push("<th colspan='4' class='dm-component-info dm-element' style='background-color:" + component.color + "'>");
 		html.push("<div class='dm-component-header-left'>" + component.name + " [" + component.acronym + "]</div>");
 		html.push("<div class='dm-component-header-left'><span class='dm-component-description'>" + component.description + "</span>");
-		
+
 		if (component.vendor) {
 			html.push("<span class='dm-component-description-small'>Vendor:&nbsp;" + component.vendor + "&nbsp;");
 			if (component.version && component.version.length) html.push("ver " + component.version);
 			html.push("</span>");
 		}
-		
+
 		var techOwner = "";
 		if (component.techOwner) {
 			for (var i=0;i<component.techOwner.length;i++) {
@@ -27,7 +27,7 @@ var DependencyMatrix = {
 			}
 		}
 		html.push("<span class='dm-component-description-small'>" + techOwner + "</span>");
-		
+
 		var technologies = "";
 		if (component.technologies) {
 			for (var i=0;i<component.technologies.length;i++) {
@@ -48,9 +48,9 @@ var DependencyMatrix = {
 			for (var j=0;j<columnComponent.acronym.length;j++)
 				columnText += columnComponent.acronym[j] + " ";
 			var classTag = "dm-columnComponent dm-element";
-			
+
 			if (columnComponent.services && columnComponent.services.length > 0) {
-				for (var j=0;j<columnComponent.services.length;j++) {				
+				for (var j=0;j<columnComponent.services.length;j++) {
 					if (DependencyMatrix.findSearchMatchesForService(columnComponent.services[j])) {
 						classTag += " dm-searchMatch";
 						break;
@@ -78,7 +78,7 @@ var DependencyMatrix = {
 				html.push("<th class='dm-columnInfo'>" + service.description + "</th>");
 				html.push("<th class='dm-columnInfo'>" + service.endpointSig + "</th>");
 				html.push("<th class='dm-columnInfo'>" + service.endpointType + "&nbsp;" + service.endpointVerb + "</th>");
-				
+
 				for (var j=0;j<DependencyMatrix._components.length;j++) {
 					html.push("<th class='dm-columnInfo-depends'>")
 					var dependComponent = DependencyMatrix._components[j];
@@ -91,8 +91,8 @@ var DependencyMatrix = {
 					}
 					html.push("</th>")
 				}
-				
-				
+
+
 				html.push("</tr>")
 			}
 		}
@@ -102,7 +102,7 @@ var DependencyMatrix = {
 		$(DependencyMatrix._container).find(".dm-header").empty().append(html.join(""))
 	},
 	render : function(container, data) {
-		$(container).load("renderers/dependencyMatrix.htm?uuid=" + DependencyMatrix.generateUUID(), function() {
+		$(container).load("./templates/dependencyMatrix.htm?uuid=" + DependencyMatrix.generateUUID(), function() {
 			DependencyMatrix._components = DependencyMatrix.sortComponents(data.components);
 			DependencyMatrix._selectedIndex = 0;
 			DependencyMatrix._container = container;
@@ -110,12 +110,12 @@ var DependencyMatrix = {
 		});
 	},
 	sortComponents : function(array) {
-		return array.sort(function(a, b) { 
+		return array.sort(function(a, b) {
 			return a["acronym"] > b["acronym"] ? 1 : -1;
 		});
 	},
 	sortColumns : function(array) {
-		return array.sort(function(a, b) { 
+		return array.sort(function(a, b) {
 			return (DependencyMatrix._sortDirection === "asc") ?
 				(a[DependencyMatrix._sortProperty] > b[DependencyMatrix._sortProperty] ? 1 : -1) :
 				(b[DependencyMatrix._sortProperty] > a[DependencyMatrix._sortProperty] ? 1 : -1);

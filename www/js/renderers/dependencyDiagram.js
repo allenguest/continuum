@@ -19,16 +19,16 @@ var DependencyDiagram = {
 	refresh : function() {
 		DependencyDiagram._chordSystems = [];
 		DependencyDiagram._chordData = [];
-		
+
 		$("#dependencyDiagramCanvas").empty();
 		var width = $(window).height() - 130,
 			height = width,
 			outerRadius = Math.min(width, height) / 2 - 10,
-			innerRadius = outerRadius - 48; 
-		
+			innerRadius = outerRadius - 48;
+
 		var depth = DependencyDiagram._data.components.length;
 		var parseComponents = [];
-		for (var i=0;i<depth;i++) 
+		for (var i=0;i<depth;i++)
 		{
 			parseComponents.push([]);
 			if (DependencyDiagram._data.components[i].services && DependencyDiagram._data.components[i].services.length > 0) {
@@ -39,7 +39,7 @@ var DependencyDiagram = {
 						var dependencies = 0;
 						var result = jQuery.each(DependencyDiagram._data.components[j].dependsOn,
 							function(dIndex) {
-								jQuery.each(DependencyDiagram._data.components[i].services, 
+								jQuery.each(DependencyDiagram._data.components[i].services,
 									function(sIndex) {
 										dependencies+=(DependencyDiagram._data.components[i].services[sIndex].id === DependencyDiagram._data.components[j].dependsOn[dIndex].endpointId)?1:0;
 								});
@@ -49,12 +49,12 @@ var DependencyDiagram = {
 					} else parseComponents[i].push(0);
 				}
 			} else {
-				for (var k=0;k<depth;k++) { 
+				for (var k=0;k<depth;k++) {
 					parseComponents[i].push(0);
 				}
 			}
 		}
-		
+
 		for (var i=0;i<parseComponents.length;i++)
 		{
 			var sum = parseComponents[i].reduce((a,b) => a + b, 0);
@@ -72,9 +72,9 @@ var DependencyDiagram = {
 			.attr("id", "circle")
 			.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 		svg.append("circle").attr("r", outerRadius);
-		
+
 		layout.matrix(DependencyDiagram._chordData);
-  
+
 		DependencyDiagram._group = svg.selectAll("g.group")
 			.data(layout.groups())
 			.enter().append("svg:g")
@@ -86,7 +86,7 @@ var DependencyDiagram = {
 		var groupPath = DependencyDiagram._group.append("svg:path")
 			.attr("id", function(d, i) { return "group" + i; })
 			.attr("d", arc)
-			.style("fill", function(d, i) { 
+			.style("fill", function(d, i) {
 				return (DependencyDiagram.findSearchMatchesInComponent(DependencyDiagram._chordSystems[i])?"#33FF33":DependencyDiagram._chordSystems[i].color);
 			});
 
@@ -94,26 +94,26 @@ var DependencyDiagram = {
 		groupText.append("textPath")
 			.attr("xlink:href", function(d, i) { return "#group" + i; })
 			.text(function(d, i) { return DependencyDiagram._chordSystems[i].acronym; });
-  
+
 		DependencyDiagram._chord = svg.selectAll("path.chord")
 			.data(layout.chords)
 			.enter().append("svg:path")
 			.attr("class", "chord")
-			.style("fill", function(d) { 
+			.style("fill", function(d) {
 				var sourceComponent = DependencyDiagram._chordSystems[d.source.index];
 				var targetComponent = DependencyDiagram._chordSystems[d.target.index];
 				var dependentServices = DependencyDiagram.getDependentServices(sourceComponent, targetComponent);
 				for (var i=0;i<dependentServices.length;i++) {
 					if (DependencyDiagram.findSearchMatchesForService(dependentServices[i])) return "#33FF33";
 				}
-				return sourceComponent.color; 
+				return sourceComponent.color;
 			})
 			.attr("d", path)
 			.on("click", function(d) { DependencyDiagram.renderEndpointInfo(d); })
 			.on("mouseover", DependencyDiagram.chordMouseover);
 	},
 	render : function(container, data) {
-		$(container).load("renderers/dependencyDiagram.htm?uuid=" + DependencyDiagram.generateUUID(), function() {
+		$(container).load("./templates/dependencyDiagram.htm?uuid=" + DependencyDiagram.generateUUID(), function() {
 			DependencyDiagram._data = data;
 			DependencyDiagram._container = container;
 			DependencyDiagram.init();
@@ -135,7 +135,7 @@ var DependencyDiagram = {
 		var html = new Array();
 		html.push("<div class='panel-group' id='endpointInfoAccordian'>");
 		html.push("<div class='infoHeader infoHeader-source'>" + targetComponent.acronym + " using " + sourceComponent.acronym + "</div>");
-		
+
 		html.push("<div class='panel panel-default'>");
 		html.push("<div class='panel-heading'>");
 		html.push("<h4 class='panel-title'><a data-toggle='collapse' data-parent='#endpointInfoAccordian' href='#collapseEndpoints' onclick='DependencyDiagram.rememberCollapse(0,this)'>Endpoints</a></h4>");
@@ -144,7 +144,7 @@ var DependencyDiagram = {
 		html.push("<div class='panel-body dd-panel-scrollable'>");
 		html.push("<table class='table table-condensed'>");
 		html.push("<thead><tr><th class='dd-column-sortable' column='id' onclick='DependencyDiagram.handleSortClick(0,this)'>ID</th><th class='dd-column-sortable' column='description' onclick='DependencyDiagram.handleSortClick(0,this)'>Description</th><th class='dd-column-sortable' column='endpointSig' onclick='DependencyDiagram.handleSortClick(0,this)'>Signature</th><th>Method</th></tr></thead><tbody>");
-		
+
 		var resultSet = [];
 		for (var i=0;i<dependsOnList.length;i++) {
 			var service = DependencyDiagram._chordSystems[d.source.index].services.find(function(service) {
@@ -152,19 +152,19 @@ var DependencyDiagram = {
 			});
 			if (service) resultSet.push(service);
 		}
-		
+
 		var sortedResultSet = DependencyDiagram.sortColumns(0, resultSet);
 		for (var i=0;i<sortedResultSet.length;i++)
 		{
 			var service = sortedResultSet[i];
 			var classTag = "dd-rowInfo";
 			if (DependencyDiagram.findSearchMatchesForService(service)) classTag += " dd-searchMatch";
-			html.push("<tr class='" + classTag + "' link='" + service.docLink + "' onclick='DependencyDiagram.handleDocClick(this)'><td>" + service.id + "</td><td>" + service.description + "</td><td>" + service.endpointSig + "</td><td>" + service.endpointType + "&nbsp;" + service.endpointVerb + "</td></tr>");	
+			html.push("<tr class='" + classTag + "' link='" + service.docLink + "' onclick='DependencyDiagram.handleDocClick(this)'><td>" + service.id + "</td><td>" + service.description + "</td><td>" + service.endpointSig + "</td><td>" + service.endpointType + "&nbsp;" + service.endpointVerb + "</td></tr>");
 		}
-			
+
 		html.push("</tbody></table>");
 		html.push("</div></div>");
-		
+
 		$("#dependencyDiagramInfo").empty().append(html.join(""))
 		$(".infoHeader-target").css("background-color", DependencyDiagram._chordSystems[d.target.index].color);
 		$(".infoHeader-source").css("background-color", DependencyDiagram._chordSystems[d.source.index].color);
@@ -173,13 +173,13 @@ var DependencyDiagram = {
 	renderComponentInfo(d) {
 		DependencyDiagram._refreshComponent = d;
 		DependencyDiagram._refreshMethod = "component";
-		
+
 		var component = DependencyDiagram._chordSystems[d.index];
-		
+
 		var html = new Array();
 		html.push("<div class='panel-group' id='endpointInfoAccordian'>");
 		html.push("<div class='infoHeader infoHeader-source'>" + component.acronym + "</div>");
-		
+
 		html.push("<div class='panel panel-default'>");
 		html.push("<div class='panel-heading'>");
 		html.push("<h4 class='panel-title'><a data-toggle='collapse' data-parent='#endpointInfoAccordian' href='#collapseEndpoints' onclick='DependencyDiagram.rememberCollapse(0,this)'>Endpoints</a></h4>");
@@ -188,7 +188,7 @@ var DependencyDiagram = {
 		html.push("<div class='panel-body dd-panel-scrollable'>");
 		html.push("<table class='table table-condensed'>");
 		html.push("<thead><tr><th class='dd-column-sortable' column='id' onclick='DependencyDiagram.handleSortClick(0,this)'>ID</th><th class='dd-column-sortable' column='description' onclick='DependencyDiagram.handleSortClick(0,this)'>Description</th><th class='dd-column-sortable' column='endpointSig' onclick='DependencyDiagram.handleSortClick(0,this)'>Signature</th><th>Method</th></tr></thead><tbody>");
-		
+
 		var sortedResultSet = DependencyDiagram.sortColumns(0, component.services);
 		for (var i=0;i<sortedResultSet.length;i++) {
 			var service = sortedResultSet[i];
@@ -198,7 +198,7 @@ var DependencyDiagram = {
 		}
 		html.push("</tbody></table>");
 		html.push("</div></div>");
-		
+
 		var targetAcronym = component.id;
 		html.push("<div class='panel panel-default'>");
 		html.push("<div class='panel-heading'>");
@@ -208,7 +208,7 @@ var DependencyDiagram = {
 		html.push("<div class='panel-body dd-panel-scrollable'>");
 		html.push("<table class='table table-condensed'>");
 		html.push("<thead><tr><th class='dd-column-sortable' column='id' onclick='DependencyDiagram.handleSortClick(1,this)'>ID</th><th class='dd-column-sortable' column='acronym' onclick='DependencyDiagram.handleSortClick(1,this)'>Called By</th><th class='dd-column-sortable' column='endpointSig' onclick='DependencyDiagram.handleSortClick(1,this)'>Signature</th><th>Method</th></tr></thead><tbody>");
-		
+
 		var resultSet = [];
 		for (var i=0;i<DependencyDiagram._chordSystems.length;i++) {
 			var dependentComponent = DependencyDiagram._chordSystems[i];
@@ -216,10 +216,10 @@ var DependencyDiagram = {
 				for (var j=0;j<dependentComponent.dependsOn.length;j++) {
 					if (dependentComponent.dependsOn[j].endpointId.startsWith(component.acronym))
 					{
-						var service = component.services.find(function(service) { 
+						var service = component.services.find(function(service) {
 							return dependentComponent.dependsOn[j].endpointId === service.id;
 						});
-						if (service) 
+						if (service)
 							resultSet.push({"docLink" : service.docLink, "id" : dependentComponent.dependsOn[j].endpointId, "acronym" : dependentComponent.acronym, "endpointSig" : service.endpointSig, "endpointType" : service.endpointType, "endpointVerb" : service.endpointVerb});
 					}
 				}
@@ -232,10 +232,10 @@ var DependencyDiagram = {
 			if (DependencyDiagram.findSearchMatchesForService(service)) classTag += " dd-searchMatch";
 			html.push("<tr class='" + classTag + "' link='" + service.docLink + "' onclick='DependencyDiagram.handleDocClick(this)'><td>" + service.id + "</td><td>" + service.acronym + "</td><td>" + service.endpointSig + "</td><td>" + service.endpointType + "&nbsp;" + service.endpointVerb + "</td></tr>");
 		}
-		
+
 		html.push("</tbody></table>")
 		html.push("</div></div>");
-		
+
 		html.push("<div class='panel panel-default'>");
 		html.push("<div class='panel-heading'>");
 		html.push("<h4 class='panel-title'><a data-toggle='collapse' data-parent='#endpointInfoAccordian' href='#collapseDependendencies' onclick='DependencyDiagram.rememberCollapse(2,this)'>Dependencies</a></h4>");
@@ -244,7 +244,7 @@ var DependencyDiagram = {
 		html.push("<div class='panel-body dd-panel-scrollable'>");
 		html.push("<table class='table table-condensed'>");
 		html.push("<thead><tr><th class='dd-column-sortable' column='acronym' onclick='DependencyDiagram.handleSortClick(2,this)'>Dependency</th><th class='dd-column-sortable' column='id' onclick='DependencyDiagram.handleSortClick(2,this)'>Depends On</th><th class='dd-column-sortable' column='endpointSig' onclick='DependencyDiagram.handleSortClick(2,this)'>Signature</th><th>Method</th></tr></thead><tbody>");
-		
+
 		var resultSet = [];
 		if (component.dependsOn) {
 			for (var i=0;i<component.dependsOn.length;i++) {
@@ -255,7 +255,7 @@ var DependencyDiagram = {
 					var dependService = dependComponent.services.find(function(dependService) {
 						return (component.dependsOn[i].endpointId === dependService.id);
 					});
-					if (dependService) 
+					if (dependService)
 						resultSet.push({"docLink" : dependService.docLink, "acronym" : dependComponent.acronym, "id" : component.dependsOn[i].endpointId, "endpointSig" : dependService.endpointSig, "endpointType" : dependService.endpointType, "endpointVerb" : dependService.endpointVerb});
 				} else {
 					// cannot find component
@@ -273,10 +273,10 @@ var DependencyDiagram = {
 		}
 		html.push("</tbody></table>")
 		html.push("</div></div>");
-		
+
 		html.push("</div>"); // panel panel-default
 		html.push("</div>");
-		
+
 		$("#dependencyDiagramInfo").empty().append(html.join(""))
 		$(".infoHeader").css("background-color", DependencyDiagram._chordSystems[d.index].color);
 		$(".info").css("display", "inline-block");
@@ -296,7 +296,7 @@ var DependencyDiagram = {
 				 html(DependencyDiagram.chordTip(d)).
 				 style("top", function () { return (d3.event.pageY)+"px"}).
 				 style("left", function () { return (d3.event.pageX)+"px";})
-				 
+
 		DependencyDiagram._chord.classed("fadeElement", function(p) {
 			return p != d;
 		});
@@ -311,7 +311,7 @@ var DependencyDiagram = {
 		DependencyDiagram._chord.classed("fadeElement", function(p) {
 			return (p.source.index != i) && (p.target.index != i);
 		});
-		
+
 	},
 	handleDocClick : function(element) {
 		var link = $(element).attr("link");
@@ -342,17 +342,17 @@ var DependencyDiagram = {
 		return result;
 	},
 	sortServices : function(array) {
-		return array.sort(function(a, b) { 
+		return array.sort(function(a, b) {
 			return a.id > b.id ? 1 : -1;
 		});
 	},
 	sortDependsOn : function(array) {
-		return array.sort(function(a, b) { 
+		return array.sort(function(a, b) {
 			return a.endpointId > b.endpointId ? 1 : -1;
 		});
 	},
 	sortColumns : function(index, array) {
-		return array.sort(function(a, b) { 
+		return array.sort(function(a, b) {
 			return (DependencyDiagram._sortDirections[index] === "asc") ?
 				(a[DependencyDiagram._sortProperties[index]] > b[DependencyDiagram._sortProperties[index]] ? 1 : -1) :
 				(b[DependencyDiagram._sortProperties[index]] > a[DependencyDiagram._sortProperties[index]] ? 1 : -1);

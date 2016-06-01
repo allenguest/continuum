@@ -1,0 +1,19 @@
+{
+  "name": "continuum",
+  "description": "a continuous sequence in which adjacent elements are not perceptibly different from each other, although the extremes are quite distinct",
+  "version": "0.1.0",
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/allenguest/continuum.git"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-bower": "0.0.13",
+    "gulp-concat": "^2.6.0",
+    "gulp-filter": "^4.0.0",
+    "gulp-load-plugins": "^1.2.4",
+    "gulp-uglify": "^1.5.3",
+    "main-bower-files": "^2.13.1"
+  }
+}
