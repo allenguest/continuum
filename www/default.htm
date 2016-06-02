@@ -23,12 +23,14 @@
     <script src="js/renderers/logicalDiagram.js"></script>
     <script src="js/renderers/dependencyDiagram.js"></script>
     <script src="js/renderers/dependencyMatrix.js"></script>
+    <script src="js/renderers/coocurrenceMatrix.js"></script>
 
     <script language="javascript">
 		$(document).ready(function() {
 			Repository.registerRenderer("logicalDiagram", LogicalDiagram, "Logical Diagram");
 			Repository.registerRenderer("dependencyDiagram", DependencyDiagram, "Dependency Chord Diagram");
 			Repository.registerRenderer("dependencyMatrix", DependencyMatrix, "Dependency Matrix");
+      Repository.registerRenderer("coocurrenceMatrix", CoocurrenceMatrix, "Coocurrence Matrix");
 
 		  var url = window.location.href.split("#");
 			var renderer = (url.length > 1)?url[1]:"dependencyMatrix";
@@ -56,6 +58,7 @@
       <li class="nav-item"><a onclick="Repository.handleNavigationClick('dependencyDiagram')">Dependency Diagram</a></li>
       <li class="nav-item"><a onclick="Repository.handleNavigationClick('dependencyMatrix')">Dependency Matrix</a></li>
 	  <li class="nav-item"><a onclick="Repository.handleNavigationClick('logicalDiagram')">Logical Diagram</a></li>
+    <li class="nav-item"><a onclick="Repository.handleNavigationClick('coocurrenceMatrix')">Coocurrence Matrix</a></li>
     </ul>
     <input type="checkbox" id="nav-trigger" class="nav-trigger">
     <label for="nav-trigger"><div class="container-title"></div></label>
