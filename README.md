@@ -19,7 +19,16 @@ This visualization tools includes 4 types of system visualizations:
 #### 4. Coocurrence Matrix
   * A derivation of a design matrix which can be used to visualize coupling, transient integrations and calculate the cost of change to a system
 
+## Getting Started
 
+  * Install nodejs: https://nodejs.org/en/download/package-manager
+  * Install dependencies: `npm install --global gulp-cli bower`
+  * Run `npm install`
+  * Run `gulp serve` to preview and watch for changes
+  * Run `bower install --save <package>` to install frontend dependencies
+  * Run `gulp serve:test` to run the tests in the browser
+  * Run `gulp` to build the webapp for production
+  * Run `gulp serve:dist` to preview the production build
 
 ## License
 
